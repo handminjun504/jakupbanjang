@@ -1,12 +1,7 @@
-import axios from 'axios';
+import axiosInstance from './axios';
 
-// axios 인스턴스 생성
-const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+// 공통 axios 인스턴스 사용 (환경 변수 포함)
+const api = axiosInstance;
 
 // 회원가입 API (레거시)
 export const signup = async (email: string, password: string, role: string) => {
