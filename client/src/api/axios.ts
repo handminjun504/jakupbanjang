@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+// 환경에 따라 API URL 설정
+// Vercel 배포 시: REACT_APP_API_URL 환경 변수 사용
+// 로컬 개발 시: localhost:3001 사용
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

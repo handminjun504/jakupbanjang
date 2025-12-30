@@ -21,11 +21,33 @@ const PORT = process.env.PORT || 3001;
 // 모델 관계 설정
 setupAssociations();
 
-// CORS 설정 - 보안 강화
+// CORS 설정 - 보안 강화 (Vercel 배포 지원)
+const allowedOrigins = [
+  'http://localhost:3000',  // 로컬 개발
+  'http://localhost:3001',  // 로컬 개발 (다른 포트)
+];
+
+// 프로덕션 환경이면 Vercel URL 추가
+if (process.env.NODE_ENV === 'production' && process.env.CLIENT_URL) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
+
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.CLIENT_URL || 'https://your-production-domain.com'  // 프로덕션 도메인
-    : 'http://localhost:3000',  // 개발 환경
+  origin: function (origin, callback) {
+    // origin이 undefined인 경우 (같은 도메인, Postman 등) 허용
+    if (!origin) return callback(null, true);
+    
+    // Vercel preview 배포 지원 (vercel.app으로 끝나는 도메인 모두 허용)
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,  // 쿠키 및 인증 정보 허용
   optionsSuccessStatus: 200
 };
