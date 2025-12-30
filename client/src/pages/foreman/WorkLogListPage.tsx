@@ -10,6 +10,15 @@ import { getWorkLogs, deleteWorkLog, updateWorkLog } from '../../api/foreman';
 import { useSiteStore } from '../../store/siteStore';
 import { StyledTextarea } from '../../components/common/StyledInput';
 
+interface Attachment {
+  id: number;
+  filename: string;
+  originalName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+}
+
 interface WorkLog {
   id: number;
   workDate: string;
@@ -18,6 +27,7 @@ interface WorkLog {
   dailyRate?: number; // 작업일지 생성 당시의 단가 (스냅샷)
   paymentStatus?: '미지급' | '지급완료'; // 지급 상태
   paymentDate?: string; // 지급일
+  attachments?: Attachment[]; // 첨부파일 추가
   worker?: {
     id: number;
     name: string;
@@ -46,6 +56,7 @@ interface GroupedWorkLog {
   fullDescription: string;
   workLogs: WorkLog[];
   isPaid?: boolean; // 지급완료 여부
+  attachments?: Attachment[]; // 첨부파일 추가
 }
 
 interface EditWorkLogData {
@@ -119,7 +130,8 @@ const WorkLogListPage: React.FC = () => {
           description: '',
           fullDescription: log.description,
           workLogs: [],
-          isPaid: false
+          isPaid: false,
+          attachments: []
         };
       }
       
@@ -134,6 +146,11 @@ const WorkLogListPage: React.FC = () => {
       // 작업내용 (같은 내용이면 중복 제거)
       if (!grouped[date].description) {
         grouped[date].description = log.description;
+      }
+      
+      // 첨부파일 수집
+      if (log.attachments && log.attachments.length > 0) {
+        grouped[date].attachments = [...(grouped[date].attachments || []), ...log.attachments];
       }
       
       // 지급완료 여부 확인 (하나라도 지급완료면 전체가 지급완료로 표시)
@@ -555,10 +572,38 @@ const WorkLogListPage: React.FC = () => {
                           <FullDescription>{selectedWorkLog.fullDescription}</FullDescription>
                         </DetailSection>
                         
-                        <DetailSection>
-                          <DetailLabel>첨부파일</DetailLabel>
-                          <AttachmentInfo>첨부파일 기능은 준비 중입니다</AttachmentInfo>
-                        </DetailSection>
+                        {selectedWorkLog.attachments && selectedWorkLog.attachments.length > 0 && (
+                          <DetailSection>
+                            <DetailLabel>📎 첨부파일 ({selectedWorkLog.attachments.length}개)</DetailLabel>
+                            <AttachmentsGrid>
+                              {selectedWorkLog.attachments.map((attachment) => {
+                                const isImage = attachment.mimeType?.startsWith('image/');
+                                
+                                return (
+                                  <AttachmentCard key={attachment.id}>
+                                    {isImage ? (
+                                      <AttachmentImage 
+                                        src={attachment.fileUrl} 
+                                        alt={attachment.originalName}
+                                        onClick={() => window.open(attachment.fileUrl, '_blank')}
+                                      />
+                                    ) : (
+                                      <AttachmentFile 
+                                        onClick={() => window.open(attachment.fileUrl, '_blank')}
+                                      >
+                                        <FileIcon>📄</FileIcon>
+                                        <FileName>{attachment.originalName}</FileName>
+                                      </AttachmentFile>
+                                    )}
+                                    <AttachmentName title={attachment.originalName}>
+                                      {attachment.originalName}
+                                    </AttachmentName>
+                                  </AttachmentCard>
+                                );
+                              })}
+                            </AttachmentsGrid>
+                          </DetailSection>
+                        )}
                         
                         <TotalSummary>
                           <SummaryRow>
@@ -1059,6 +1104,80 @@ const AttachmentInfo = styled.div`
   background-color: ${theme.colors.background.primary};
   border-radius: ${theme.borderRadius.small};
   text-align: center;
+`;
+
+/* 첨부파일 스타일 */
+const AttachmentsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: ${theme.spacing.md};
+  margin-top: ${theme.spacing.md};
+`;
+
+const AttachmentCard = styled.div`
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.medium};
+  overflow: hidden;
+  background-color: ${theme.colors.background.secondary};
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const AttachmentImage = styled.img`
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+const AttachmentFile = styled.div`
+  width: 100%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  
+  &:hover {
+    background-color: #e9ecef;
+  }
+`;
+
+const FileIcon = styled.div`
+  font-size: 36px;
+  margin-bottom: ${theme.spacing.xs};
+`;
+
+const FileName = styled.div`
+  font-size: 11px;
+  color: ${theme.colors.text.secondary};
+  text-align: center;
+  padding: 0 ${theme.spacing.xs};
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const AttachmentName = styled.div`
+  font-size: 11px;
+  color: ${theme.colors.text.primary};
+  padding: ${theme.spacing.xs};
+  background-color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const TotalSummary = styled.div`
