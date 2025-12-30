@@ -217,16 +217,32 @@ export const deleteWorkLog = async (workLogId: number) => {
   }
 };
 
-// 지출결의 등록
+// 지출결의 등록 (파일 첨부 지원)
 export const createExpense = async (expenseData: {
   title: string;
   content: string;
   amount: number;
   expenseDate: string;
   siteId: number;
+  file?: File;  // 파일 추가
 }) => {
   try {
-    const response = await apiClient.post('/foreman/expenses', expenseData);
+    const formData = new FormData();
+    formData.append('title', expenseData.title);
+    formData.append('content', expenseData.content);
+    formData.append('amount', expenseData.amount.toString());
+    formData.append('expenseDate', expenseData.expenseDate);
+    formData.append('siteId', expenseData.siteId.toString());
+    
+    if (expenseData.file) {
+      formData.append('file', expenseData.file);
+    }
+    
+    const response = await apiClient.post('/foreman/expenses', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return response.data.data || response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || '지출결의 등록에 실패했습니다.');

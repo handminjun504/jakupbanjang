@@ -673,9 +673,11 @@ exports.createExpense = async (req, res) => {
     const { title, content, amount, expenseDate, siteId } = req.body;
     const creatorId = req.user.id;
     const companyId = req.user.companyId;
+    const file = req.file;  // multer에서 파일 받기
 
     console.log('📝 Creating expense with data:', {
-      title, content, amount, expenseDate, siteId, creatorId, companyId
+      title, content, amount, expenseDate, siteId, creatorId, companyId,
+      hasFile: !!file
     });
 
     // 필수 필드 검증
@@ -706,6 +708,36 @@ exports.createExpense = async (req, res) => {
 
     console.log('✅ Site found:', site.name);
 
+    // 파일이 있으면 Supabase Storage에 업로드
+    let attachmentUrl = null;
+    if (file) {
+      try {
+        const { supabase, STORAGE_BUCKETS } = require('../config/supabase');
+        const fileName = `expense_${Date.now()}_${file.originalname}`;
+        
+        const { data, error } = await supabase.storage
+          .from(STORAGE_BUCKETS.EXPENSES)
+          .upload(fileName, file.buffer, {
+            contentType: file.mimetype,
+            upsert: false
+          });
+
+        if (error) {
+          console.error('파일 업로드 실패:', error);
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from(STORAGE_BUCKETS.EXPENSES)
+            .getPublicUrl(fileName);
+          
+          attachmentUrl = publicUrl;
+          console.log('✅ File uploaded:', attachmentUrl);
+        }
+      } catch (uploadError) {
+        console.error('파일 업로드 중 오류:', uploadError);
+        // 파일 업로드 실패해도 지출결의는 등록
+      }
+    }
+
     // 지출결의 생성
     console.log('📝 Creating expense in DB...');
     const expense = await Expense.create({
@@ -716,7 +748,8 @@ exports.createExpense = async (req, res) => {
       siteId,
       creatorId,
       companyId,
-      status: 'pending'
+      status: 'pending',
+      attachmentUrl  // 첨부파일 URL 추가
     });
 
     console.log('✅ Expense created:', expense.id);

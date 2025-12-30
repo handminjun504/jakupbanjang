@@ -3,6 +3,7 @@ const router = express.Router();
 const foremanController = require('../controllers/foremanController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const { requireForeman } = require('../middlewares/roleMiddleware');
+const { uploadExpense } = require('../config/multer');  // multer 추가
 
 // 모든 라우트에 인증 미들웨어 적용
 router.use(authMiddleware);
@@ -44,8 +45,8 @@ router.delete('/worklogs/:id', foremanController.deleteWorkLog);
 // GET /api/foreman/workers-list - 근무자 목록 조회 (간단 버전)
 router.get('/workers-list', foremanController.getWorkersList);
 
-// POST /api/foreman/expenses - 지출결의 등록
-router.post('/expenses', foremanController.createExpense);
+// POST /api/foreman/expenses - 지출결의 등록 (파일 첨부 지원)
+router.post('/expenses', uploadExpense.single('file'), foremanController.createExpense);
 
 // GET /api/foreman/expenses - 지출결의 목록 조회
 router.get('/expenses', foremanController.getExpenses);

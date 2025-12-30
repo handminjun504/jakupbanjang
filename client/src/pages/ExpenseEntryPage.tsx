@@ -19,6 +19,7 @@ interface Expense {
   rejectReason?: string;
   createdAt: string;
   approvalDate?: string;
+  attachmentUrl?: string;  // 첨부파일 URL 추가
   site?: {
     id: number;
     name: string;
@@ -134,7 +135,8 @@ const ExpenseEntryPage: React.FC = () => {
         content: content.trim(),
         amount: numericAmount,
         expenseDate,
-        siteId: selectedSiteId
+        siteId: selectedSiteId,
+        file: selectedFile || undefined  // 파일 추가
       });
       
       alert('지출결의가 등록되었습니다.\n관리자 승인 후 확정됩니다.');
@@ -381,6 +383,20 @@ const ExpenseEntryPage: React.FC = () => {
                   <DetailRow>
                     <DetailLabel>거절 사유:</DetailLabel>
                     <DetailValue $error>{selectedExpense.rejectReason}</DetailValue>
+                  </DetailRow>
+                )}
+                {selectedExpense.attachmentUrl && (
+                  <DetailRow>
+                    <DetailLabel>첨부파일:</DetailLabel>
+                    <DetailValue>
+                      <AttachmentLink 
+                        href={selectedExpense.attachmentUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        📎 첨부파일 보기
+                      </AttachmentLink>
+                    </DetailValue>
                   </DetailRow>
                 )}
                 <DetailRow>
@@ -876,6 +892,18 @@ const DetailValue = styled.span<{ $highlight?: boolean; $error?: boolean }>`
   
   @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 13px;
+  }
+`;
+
+const AttachmentLink = styled.a`
+  color: #2196f3;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  
+  &:hover {
+    text-decoration: underline;
   }
 `;
 

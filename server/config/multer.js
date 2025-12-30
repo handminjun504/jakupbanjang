@@ -39,5 +39,15 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
+// 지출결의 파일 업로드 (최대 1개)
+const uploadExpense = multer({
+  storage: storage,
+  limits: {
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024
+  },
+  fileFilter: fileFilter
+});
+
 module.exports = upload;
+module.exports.uploadExpense = uploadExpense;
 

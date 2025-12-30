@@ -88,6 +88,12 @@ const Expense = sequelize.define('Expense', {
     },
     comment: '소속 기업 ID',
     field: 'company_id'  // snake_case 매핑
+  },
+  attachmentUrl: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: '첨부파일 URL (Supabase Storage)',
+    field: 'attachment_url'  // snake_case 매핑
   }
 }, {
   tableName: 'expenses',
