@@ -3,7 +3,8 @@ const router = express.Router();
 const foremanController = require('../controllers/foremanController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const { requireForeman } = require('../middlewares/roleMiddleware');
-const { uploadExpense } = require('../config/multer');  // multer 추가
+const upload = require('../config/multer');  // 기본 multer
+const { uploadExpense } = require('../config/multer');  // 지출결의용 multer
 
 // 모든 라우트에 인증 미들웨어 적용
 router.use(authMiddleware);
