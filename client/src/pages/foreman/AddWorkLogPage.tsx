@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
@@ -24,6 +24,7 @@ interface WorkerEffort {
 const AddWorkLogPage: React.FC = () => {
   const navigate = useNavigate();
   const { selectedSiteId } = useSiteStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [selectedWorkers, setSelectedWorkers] = useState<WorkerEffort[]>([]);
@@ -116,6 +117,8 @@ const AddWorkLogPage: React.FC = () => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       setAttachments(prev => [...prev, ...filesArray]);
+      // input value 초기화 (같은 파일 재선택 가능하도록)
+      e.target.value = '';
     }
   };
 
@@ -358,11 +361,11 @@ const AddWorkLogPage: React.FC = () => {
 
             <FormGroup>
               <Label>사진 첨부 (선택)</Label>
-              <FileUploadButton onClick={() => document.getElementById('work-log-file-input')?.click()}>
+              <FileUploadButton type="button" onClick={() => fileInputRef.current?.click()}>
                 📷 사진 선택하기
               </FileUploadButton>
               <HiddenFileInput
-                id="work-log-file-input"
+                ref={fileInputRef}
                 type="file"
                 multiple
                 accept="image/*"
