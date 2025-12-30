@@ -25,7 +25,8 @@ const Expense = sequelize.define('Expense', {
   expenseDate: {
     type: DataTypes.DATEONLY,
     allowNull: false,
-    comment: '지출 일자'
+    comment: '지출 일자',
+    field: 'expense_date'  // snake_case 매핑
   },
   status: {
     type: DataTypes.STRING,
@@ -43,7 +44,8 @@ const Expense = sequelize.define('Expense', {
       model: 'sites',
       key: 'id'
     },
-    comment: '현장 ID'
+    comment: '현장 ID',
+    field: 'site_id'  // snake_case 매핑
   },
   creatorId: {
     type: DataTypes.INTEGER,
@@ -52,7 +54,8 @@ const Expense = sequelize.define('Expense', {
       model: 'users',
       key: 'id'
     },
-    comment: '작성자 ID (작업반장)'
+    comment: '작성자 ID (작업반장)',
+    field: 'creator_id'  // snake_case 매핑
   },
   approverId: {
     type: DataTypes.INTEGER,
@@ -61,17 +64,20 @@ const Expense = sequelize.define('Expense', {
       model: 'users',
       key: 'id'
     },
-    comment: '승인/거절한 관리자 ID'
+    comment: '승인/거절한 관리자 ID',
+    field: 'approver_id'  // snake_case 매핑
   },
   approvalDate: {
     type: DataTypes.DATE,
     allowNull: true,
-    comment: '승인/거절 일시'
+    comment: '승인/거절 일시',
+    field: 'approval_date'  // snake_case 매핑
   },
   rejectReason: {
     type: DataTypes.TEXT,
     allowNull: true,
-    comment: '거절 사유'
+    comment: '거절 사유',
+    field: 'reject_reason'  // snake_case 매핑
   },
   companyId: {
     type: DataTypes.INTEGER,
@@ -80,7 +86,8 @@ const Expense = sequelize.define('Expense', {
       model: 'companies',
       key: 'id'
     },
-    comment: '소속 기업 ID'
+    comment: '소속 기업 ID',
+    field: 'company_id'  // snake_case 매핑
   }
 }, {
   tableName: 'expenses',
@@ -89,11 +96,11 @@ const Expense = sequelize.define('Expense', {
   indexes: [
     {
       name: 'idx_expenses_site',
-      fields: ['siteId']
+      fields: ['site_id']  // snake_case
     },
     {
       name: 'idx_expenses_creator',
-      fields: ['creatorId']
+      fields: ['creator_id']  // snake_case
     },
     {
       name: 'idx_expenses_status',
@@ -101,15 +108,15 @@ const Expense = sequelize.define('Expense', {
     },
     {
       name: 'idx_expenses_company',
-      fields: ['companyId']
+      fields: ['company_id']  // snake_case
     },
     {
       name: 'idx_expenses_date',
-      fields: ['expenseDate']
+      fields: ['expense_date']  // snake_case
     },
     {
       name: 'idx_expenses_company_status',
-      fields: ['companyId', 'status']
+      fields: ['company_id', 'status']  // snake_case
     }
   ]
 });
