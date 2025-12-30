@@ -674,6 +674,10 @@ exports.createExpense = async (req, res) => {
     const creatorId = req.user.id;
     const companyId = req.user.companyId;
 
+    console.log('📝 Creating expense with data:', {
+      title, content, amount, expenseDate, siteId, creatorId, companyId
+    });
+
     // 필수 필드 검증
     if (!title || !content || !amount || !expenseDate || !siteId) {
       return res.status(400).json({
@@ -693,13 +697,17 @@ exports.createExpense = async (req, res) => {
     // 현장 존재 여부 확인
     const site = await Site.findOne({ where: { id: siteId, companyId } });
     if (!site) {
+      console.error('❌ Site not found:', { siteId, companyId });
       return res.status(404).json({
         success: false,
         message: '현장을 찾을 수 없습니다.'
       });
     }
 
+    console.log('✅ Site found:', site.name);
+
     // 지출결의 생성
+    console.log('📝 Creating expense in DB...');
     const expense = await Expense.create({
       title,
       content,
@@ -710,6 +718,8 @@ exports.createExpense = async (req, res) => {
       companyId,
       status: 'pending'
     });
+
+    console.log('✅ Expense created:', expense.id);
 
     // 생성된 지출결의 정보와 관련 데이터 조회
     const expenseWithDetails = await Expense.findByPk(expense.id, {
