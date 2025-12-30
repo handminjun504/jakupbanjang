@@ -24,6 +24,17 @@ export interface Site {
   }[];
 }
 
+// 첨부파일 인터페이스
+export interface Attachment {
+  id: number;
+  filename: string;
+  originalName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+  createdAt: string;
+}
+
 // 작업일지 인터페이스
 export interface WorkLog {
   id: number;
@@ -40,6 +51,7 @@ export interface WorkLog {
   effort?: number;
   dailyRate?: number;
   workDate?: string;
+  attachments?: Attachment[];  // 첨부파일 추가
   creator?: {
     id: number;
     name?: string;

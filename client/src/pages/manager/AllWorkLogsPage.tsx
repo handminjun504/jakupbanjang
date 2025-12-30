@@ -335,6 +335,47 @@ const AllWorkLogsPage: React.FC = () => {
               
               <Divider />
               
+              {/* 첨부파일 섹션 */}
+              {selectedGroupedWorkLog.workLogs[0]?.attachments && 
+               selectedGroupedWorkLog.workLogs[0].attachments.length > 0 && (
+                <>
+                  <SectionTitle>📎 첨부파일 ({selectedGroupedWorkLog.workLogs[0].attachments.length}개)</SectionTitle>
+                  <AttachmentsGrid>
+                    {selectedGroupedWorkLog.workLogs[0].attachments.map((attachment: any) => {
+                      const isImage = attachment.mimeType?.startsWith('image/');
+                      
+                      return (
+                        <AttachmentCard key={attachment.id}>
+                          {isImage ? (
+                            <AttachmentImage 
+                              src={attachment.fileUrl} 
+                              alt={attachment.originalName}
+                              onClick={() => window.open(attachment.fileUrl, '_blank')}
+                            />
+                          ) : (
+                            <AttachmentFile 
+                              onClick={() => window.open(attachment.fileUrl, '_blank')}
+                            >
+                              <FileIcon>📄</FileIcon>
+                              <FileName>{attachment.originalName}</FileName>
+                            </AttachmentFile>
+                          )}
+                          <AttachmentInfo>
+                            <AttachmentName title={attachment.originalName}>
+                              {attachment.originalName}
+                            </AttachmentName>
+                            <AttachmentSize>
+                              {(attachment.fileSize / 1024).toFixed(1)} KB
+                            </AttachmentSize>
+                          </AttachmentInfo>
+                        </AttachmentCard>
+                      );
+                    })}
+                  </AttachmentsGrid>
+                  <Divider />
+                </>
+              )}
+              
               <DetailRow>
                 <DetailLabel>등록일:</DetailLabel>
                 <DetailValue>
@@ -877,6 +918,89 @@ const PaymentWarning = styled.div`
   font-size: 13px;
   line-height: 1.6;
   margin-top: ${theme.spacing.md};
+`;
+
+/* 첨부파일 스타일 */
+const AttachmentsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: ${theme.spacing.md};
+  margin-bottom: ${theme.spacing.lg};
+`;
+
+const AttachmentCard = styled.div`
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.medium};
+  overflow: hidden;
+  background-color: ${theme.colors.background.secondary};
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const AttachmentImage = styled.img`
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+const AttachmentFile = styled.div`
+  width: 100%;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #f8f9fa;
+  
+  &:hover {
+    background-color: #e9ecef;
+  }
+`;
+
+const FileIcon = styled.div`
+  font-size: 48px;
+  margin-bottom: ${theme.spacing.sm};
+`;
+
+const FileName = styled.div`
+  font-size: 12px;
+  color: ${theme.colors.text.secondary};
+  text-align: center;
+  padding: 0 ${theme.spacing.sm};
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const AttachmentInfo = styled.div`
+  padding: ${theme.spacing.sm};
+  background-color: white;
+`;
+
+const AttachmentName = styled.div`
+  font-size: 12px;
+  color: ${theme.colors.text.primary};
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const AttachmentSize = styled.div`
+  font-size: 11px;
+  color: ${theme.colors.text.secondary};
 `;
 
 export default AllWorkLogsPage;
