@@ -61,11 +61,12 @@ const ExpenseEntryPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    // 내역 탭일 때 지출결의 목록 불러오기
+    // 내역 탭일 때만 지출결의 목록 불러오기 (최적화: 등록 탭에서는 호출 안 함)
     if (expenseSubTab === 'list') {
       fetchExpenses();
     }
-  }, [expenseSubTab, filterStatus, selectedSiteId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expenseSubTab, filterStatus, selectedSiteId]); // selectedSiteId는 list 탭일 때만 영향
 
   const fetchExpenses = async () => {
     try {

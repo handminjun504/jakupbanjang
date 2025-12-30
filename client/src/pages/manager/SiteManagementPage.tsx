@@ -32,29 +32,33 @@ const SiteManagementPage: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchSites();
-    fetchForemen();
+    fetchData();
   }, []);
 
-  const fetchSites = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await getSites();
-      setSites(data);
+      // 병렬 API 호출로 성능 최적화
+      const [sitesData, foremenData] = await Promise.all([
+        getSites(),
+        getForemen()
+      ]);
+      setSites(sitesData);
+      setForemen(foremenData);
       setError('');
     } catch (err: any) {
-      setError(err.message || '현장 목록을 불러오는데 실패했습니다.');
+      setError(err.message || '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchForemen = async () => {
+  const fetchSites = async () => {
     try {
-      const data = await getForemen();
-      setForemen(data);
+      const data = await getSites();
+      setSites(data);
     } catch (err: any) {
-      console.error('작업반장 목록 조회 실패:', err);
+      setError(err.message || '현장 목록을 불러오는데 실패했습니다.');
     }
   };
 

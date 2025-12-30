@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
@@ -90,18 +90,18 @@ const AddWorkLogPage: React.FC = () => {
   };
 
   // 개별 근무자 금액 계산
-  const calculateAmount = (effort: string, dailyRate: string): number => {
+  const calculateAmount = useCallback((effort: string, dailyRate: string): number => {
     const effortNum = parseFloat(effort) || 0;
     const rateNum = parseFloat(dailyRate) || 0;
     return effortNum * rateNum;
-  };
+  }, []);
 
-  // 총 금액 계산
-  const calculateTotalAmount = (): number => {
+  // 총 금액 계산 (useMemo로 최적화 - 불필요한 재계산 방지)
+  const totalAmount = useMemo(() => {
     return selectedWorkers.reduce((total, worker) => {
       return total + calculateAmount(worker.effort, worker.dailyRate);
     }, 0);
-  };
+  }, [selectedWorkers, calculateAmount]);
 
   const handleBulkEffortApply = () => {
     if (!bulkEffort || parseFloat(bulkEffort) <= 0) {
@@ -339,7 +339,7 @@ const AddWorkLogPage: React.FC = () => {
                 {selectedWorkers.length > 0 && (
                   <TotalAmountSection>
                     <TotalAmountLabel>총 금액</TotalAmountLabel>
-                    <TotalAmountValue>{calculateTotalAmount().toLocaleString()}원</TotalAmountValue>
+                    <TotalAmountValue>{totalAmount.toLocaleString()}원</TotalAmountValue>
                   </TotalAmountSection>
                 )}
               </>

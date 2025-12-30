@@ -35,21 +35,34 @@ const AllWorkLogsPage: React.FC = () => {
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
-    fetchInitialData();
+    // 초기 로딩: sites와 workLogs를 병렬로 가져오기 (최적화)
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        const [sitesData, workLogsData] = await Promise.all([
+          getSites(),
+          getAllWorkLogs({})
+        ]);
+        setSites(sitesData);
+        setWorkLogs(workLogsData);
+        groupWorkLogsByDateSiteCreator(workLogsData);
+        setError('');
+      } catch (err: any) {
+        setError(err.message || '데이터를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadInitialData();
   }, []);
 
   useEffect(() => {
-    fetchWorkLogs();
-  }, [filterSiteId, filterStartDate, filterEndDate]);
-
-  const fetchInitialData = async () => {
-    try {
-      const sitesData = await getSites();
-      setSites(sitesData);
-    } catch (err) {
-      console.error('Failed to load sites:', err);
+    // 필터 변경 시에만 workLogs 다시 로드
+    if (filterSiteId || filterStartDate || filterEndDate) {
+      fetchWorkLogs();
     }
-  };
+  }, [filterSiteId, filterStartDate, filterEndDate]);
 
   const fetchWorkLogs = async () => {
     try {
