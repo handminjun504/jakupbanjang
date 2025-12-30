@@ -115,17 +115,19 @@ const setupAssociations = () => {
 
   // Task와 Attachment 관계
   Task.hasMany(Attachment, {
-    foreignKey: 'TaskId',
+    foreignKey: 'task_id',
     as: 'attachments',
     onDelete: 'CASCADE'
   });
 
   Attachment.belongsTo(Task, {
-    foreignKey: 'TaskId'
+    foreignKey: 'task_id',
+    as: 'task'
   });
 
   Attachment.belongsTo(User, {
-    foreignKey: 'UserId'
+    foreignKey: 'user_id',
+    as: 'uploader'
   });
 
   User.hasMany(Attachment, {

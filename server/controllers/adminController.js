@@ -241,7 +241,9 @@ const getAllWorkLogs = async (req, res) => {
         },
         {
           model: Attachment,
-          as: 'attachments'
+          as: 'attachments',
+          attributes: ['id', 'filename', 'file_path', 'file_size', 'mime_type', 'created_at'],
+          required: false // LEFT JOIN으로 첨부파일이 없어도 작업일지 조회
         }
       ],
       order: [['createdAt', 'DESC']]
