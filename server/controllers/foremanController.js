@@ -6,6 +6,7 @@ const Expense = require('../models/Expense');
 const SiteForemanAssignment = require('../models/SiteForemanAssignment');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const path = require('path');
 const { validateRRN } = require('../utils/rrnValidator');
 const { encryptRRN, decryptRRN, maskRRN } = require('../utils/encryption');
 
@@ -437,12 +438,21 @@ exports.createWorkLog = async (req, res) => {
         const Attachment = require('../models/Attachment');
         
         for (const file of files) {
-          const fileName = `worklog_${workLog.id}_${Date.now()}_${file.originalname}`;
+          // 안전한 파일명 생성 (한글, 공백, 특수문자 제거)
+          const fileExt = path.extname(file.originalname).toLowerCase();
+          const randomString = crypto.randomBytes(8).toString('hex');
+          const safeFileName = `worklog_${workLog.id}_${Date.now()}_${randomString}${fileExt}`;
+          
+          console.log('📤 Uploading file:', {
+            original: file.originalname,
+            safe: safeFileName,
+            size: file.size
+          });
           
           // Supabase Storage에 업로드
           const { data, error } = await supabase.storage
             .from(STORAGE_BUCKETS.WORK_LOGS)
-            .upload(fileName, file.buffer, {
+            .upload(safeFileName, file.buffer, {
               contentType: file.mimetype,
               upsert: false
             });
@@ -451,26 +461,27 @@ exports.createWorkLog = async (req, res) => {
             // Public URL 생성
             const { data: { publicUrl } } = supabase.storage
               .from(STORAGE_BUCKETS.WORK_LOGS)
-              .getPublicUrl(fileName);
+              .getPublicUrl(safeFileName);
             
             // Attachment 모델에 저장
             await Attachment.create({
               taskId: workLog.id,
-              filename: fileName,
-              originalName: file.originalname,
+              filename: safeFileName,
+              originalName: file.originalname, // 원본 파일명은 DB에 저장
               fileUrl: publicUrl,
               fileSize: file.size,
               mimeType: file.mimetype
             });
             
-            console.log('✅ File uploaded:', publicUrl);
+            console.log('✅ File uploaded successfully:', publicUrl);
           } else {
-            console.error('파일 업로드 실패:', error);
+            console.error('❌ File upload failed:', error);
+            throw new Error(`파일 업로드 실패: ${error.message}`);
           }
         }
       } catch (uploadError) {
-        console.error('파일 업로드 중 오류:', uploadError);
-        // 파일 업로드 실패해도 작업일지는 등록됨
+        console.error('❌ Upload error:', uploadError);
+        throw uploadError; // 에러를 상위로 전파하여 사용자에게 알림
       }
     }
 
@@ -768,28 +779,39 @@ exports.createExpense = async (req, res) => {
     if (file) {
       try {
         const { supabase, STORAGE_BUCKETS } = require('../config/supabase');
-        const fileName = `expense_${Date.now()}_${file.originalname}`;
+        
+        // 안전한 파일명 생성 (한글, 공백, 특수문자 제거)
+        const fileExt = path.extname(file.originalname).toLowerCase();
+        const randomString = crypto.randomBytes(8).toString('hex');
+        const safeFileName = `expense_${Date.now()}_${randomString}${fileExt}`;
+        
+        console.log('📤 Uploading expense file:', {
+          original: file.originalname,
+          safe: safeFileName,
+          size: file.size
+        });
         
         const { data, error } = await supabase.storage
           .from(STORAGE_BUCKETS.EXPENSES)
-          .upload(fileName, file.buffer, {
+          .upload(safeFileName, file.buffer, {
             contentType: file.mimetype,
             upsert: false
           });
 
         if (error) {
-          console.error('파일 업로드 실패:', error);
+          console.error('❌ Expense file upload failed:', error);
+          throw new Error(`파일 업로드 실패: ${error.message}`);
         } else {
           const { data: { publicUrl } } = supabase.storage
             .from(STORAGE_BUCKETS.EXPENSES)
-            .getPublicUrl(fileName);
+            .getPublicUrl(safeFileName);
           
           attachmentUrl = publicUrl;
-          console.log('✅ File uploaded:', attachmentUrl);
+          console.log('✅ Expense file uploaded successfully:', attachmentUrl);
         }
       } catch (uploadError) {
-        console.error('파일 업로드 중 오류:', uploadError);
-        // 파일 업로드 실패해도 지출결의는 등록
+        console.error('❌ Expense upload error:', uploadError);
+        throw uploadError; // 에러를 상위로 전파
       }
     }
 
