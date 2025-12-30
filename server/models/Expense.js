@@ -18,9 +18,9 @@ const Expense = sequelize.define('Expense', {
     comment: '지출 내용'
   },
   amount: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.BIGINT,
     allowNull: false,
-    comment: '지출 금액'
+    comment: '지출 금액 (BIGINT: 큰 금액 지원)'
   },
   expenseDate: {
     type: DataTypes.DATEONLY,
