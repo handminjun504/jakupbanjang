@@ -207,6 +207,7 @@ export interface Expense {
   rejectReason?: string;
   createdAt: string;
   approvalDate?: string;
+  attachmentUrl?: string; // 첨부파일 URL 추가
   site?: {
     id: number;
     name: string;
