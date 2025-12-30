@@ -465,12 +465,13 @@ exports.createWorkLog = async (req, res) => {
             
             // Attachment 모델에 저장
             await Attachment.create({
-              taskId: workLog.id,
-              filename: safeFileName,
-              originalName: file.originalname, // 원본 파일명은 DB에 저장
-              fileUrl: publicUrl,
-              fileSize: file.size,
-              mimeType: file.mimetype
+              task_id: workLog.id,
+              user_id: creatorId,
+              filename: file.originalname, // 원본 파일명
+              file_path: publicUrl, // Public URL
+              storage_path: safeFileName, // Storage 내부 경로
+              file_size: file.size,
+              mime_type: file.mimetype
             });
             
             console.log('✅ File uploaded successfully:', publicUrl);

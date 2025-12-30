@@ -28,10 +28,9 @@ export interface Site {
 export interface Attachment {
   id: number;
   filename: string;
-  originalName: string;
-  fileUrl: string;
-  fileSize: number;
-  mimeType: string;
+  file_path: string; // snake_case (백엔드 필드명)
+  file_size: number; // snake_case (백엔드 필드명)
+  mime_type: string; // snake_case (백엔드 필드명)
   createdAt: string;
 }
 

@@ -13,10 +13,9 @@ import { StyledTextarea } from '../../components/common/StyledInput';
 interface Attachment {
   id: number;
   filename: string;
-  originalName: string;
-  fileUrl: string;
-  fileSize: number;
-  mimeType: string;
+  file_path: string; // snake_case (백엔드 필드명)
+  file_size: number; // snake_case (백엔드 필드명)
+  mime_type: string; // snake_case (백엔드 필드명)
 }
 
 interface WorkLog {
@@ -577,26 +576,26 @@ const WorkLogListPage: React.FC = () => {
                             <DetailLabel>📎 첨부파일 ({selectedWorkLog.attachments.length}개)</DetailLabel>
                             <AttachmentsGrid>
                               {selectedWorkLog.attachments.map((attachment) => {
-                                const isImage = attachment.mimeType?.startsWith('image/');
+                                const isImage = attachment.mime_type?.startsWith('image/');
                                 
                                 return (
                                   <AttachmentCard key={attachment.id}>
                                     {isImage ? (
                                       <AttachmentImage 
-                                        src={attachment.fileUrl} 
-                                        alt={attachment.originalName}
-                                        onClick={() => window.open(attachment.fileUrl, '_blank')}
+                                        src={attachment.file_path} 
+                                        alt={attachment.filename}
+                                        onClick={() => window.open(attachment.file_path, '_blank')}
                                       />
                                     ) : (
                                       <AttachmentFile 
-                                        onClick={() => window.open(attachment.fileUrl, '_blank')}
+                                        onClick={() => window.open(attachment.file_path, '_blank')}
                                       >
                                         <FileIcon>📄</FileIcon>
-                                        <FileName>{attachment.originalName}</FileName>
+                                        <FileName>{attachment.filename}</FileName>
                                       </AttachmentFile>
                                     )}
-                                    <AttachmentName title={attachment.originalName}>
-                                      {attachment.originalName}
+                                    <AttachmentName title={attachment.filename}>
+                                      {attachment.filename}
                                     </AttachmentName>
                                   </AttachmentCard>
                                 );

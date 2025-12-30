@@ -342,30 +342,30 @@ const AllWorkLogsPage: React.FC = () => {
                   <SectionTitle>📎 첨부파일 ({selectedGroupedWorkLog.workLogs[0].attachments.length}개)</SectionTitle>
                   <AttachmentsGrid>
                     {selectedGroupedWorkLog.workLogs[0].attachments.map((attachment: any) => {
-                      const isImage = attachment.mimeType?.startsWith('image/');
+                      const isImage = attachment.mime_type?.startsWith('image/');
                       
                       return (
                         <AttachmentCard key={attachment.id}>
                           {isImage ? (
                             <AttachmentImage 
-                              src={attachment.fileUrl} 
-                              alt={attachment.originalName}
-                              onClick={() => window.open(attachment.fileUrl, '_blank')}
+                              src={attachment.file_path} 
+                              alt={attachment.filename}
+                              onClick={() => window.open(attachment.file_path, '_blank')}
                             />
                           ) : (
                             <AttachmentFile 
-                              onClick={() => window.open(attachment.fileUrl, '_blank')}
+                              onClick={() => window.open(attachment.file_path, '_blank')}
                             >
                               <FileIcon>📄</FileIcon>
-                              <FileName>{attachment.originalName}</FileName>
+                              <FileName>{attachment.filename}</FileName>
                             </AttachmentFile>
                           )}
                           <AttachmentInfo>
-                            <AttachmentName title={attachment.originalName}>
-                              {attachment.originalName}
+                            <AttachmentName title={attachment.filename}>
+                              {attachment.filename}
                             </AttachmentName>
                             <AttachmentSize>
-                              {(attachment.fileSize / 1024).toFixed(1)} KB
+                              {(attachment.file_size / 1024).toFixed(1)} KB
                             </AttachmentSize>
                           </AttachmentInfo>
                         </AttachmentCard>
