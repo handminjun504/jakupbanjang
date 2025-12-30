@@ -5,6 +5,12 @@ import axios from 'axios';
 // 로컬 개발 시: localhost:3001 사용
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
+// 디버그: 환경 변수 확인
+console.log('🔍 Environment Check:');
+console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+console.log('API_URL:', API_URL);
+console.log('All env vars:', process.env);
+
 const axiosInstance = axios.create({
   baseURL: `${API_URL}/api`,
   headers: {
