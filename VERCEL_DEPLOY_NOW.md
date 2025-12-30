@@ -7,18 +7,24 @@
 **👉 https://render.com 접속**
 
 1. GitHub 계정으로 로그인
-2. "New +" → "Web Service"
+2. **"New +" → "Blueprint"** ⭐ (자동 설정!)
 3. 저장소: `handminjun504/jakupbanjang` 선택
-4. 아래 설정 입력:
+4. `render.yaml` 파일이 자동 감지됩니다
+5. "Apply" 클릭
+
+**또는 수동 설정:**
+1. "New +" → "Web Service"
+2. 저장소: `handminjun504/jakupbanjang` 선택
+3. 아래 설정 입력:
 
 ```
 Name: jakupbanjang-api
 Region: Oregon (또는 Singapore)
 Branch: main
-Root Directory: server          ⭐
-Environment: Node
-Build Command: npm install
-Start Command: node index.js
+Root Directory: server          ⭐ (이것부터 먼저!)
+Runtime: Node                   (드롭다운 선택)
+Build Command: npm install      (Advanced에 있을 수 있음)
+Start Command: node index.js    (Advanced에 있을 수 있음)
 Instance Type: Free
 ```
 
