@@ -219,6 +219,7 @@ const getAllWorkLogs = async (req, res) => {
       };
     }
 
+    const Attachment = require('../models/Attachment');
     const workLogs = await Task.findAll({
       where,
       include: [
@@ -237,6 +238,10 @@ const getAllWorkLogs = async (req, res) => {
           as: 'worker',
           // 퇴사 여부 확인을 위해 status, resignedDate 포함
           attributes: ['id', 'name', 'phoneNumber', 'dailyRate', 'status', 'resignedDate']
+        },
+        {
+          model: Attachment,
+          as: 'attachments'
         }
       ],
       order: [['createdAt', 'DESC']]

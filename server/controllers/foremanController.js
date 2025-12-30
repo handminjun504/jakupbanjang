@@ -397,6 +397,7 @@ exports.createWorkLog = async (req, res) => {
     const { workerId, description, effort, workDate, siteId } = req.body;
     const creatorId = req.user.id;
     const companyId = req.user.companyId;
+    const files = req.files;  // multer에서 파일 받기
 
     // 필수 필드 검증
     if (!workerId || !description || !effort || !workDate || !siteId) {
@@ -429,7 +430,52 @@ exports.createWorkLog = async (req, res) => {
       title: `${worker.name} - ${workDate} 작업일지`
     });
 
-    // 생성된 작업일지 정보와 관련 데이터 조회
+    // 파일 업로드 처리 (Supabase Storage)
+    if (files && files.length > 0) {
+      try {
+        const { supabase, STORAGE_BUCKETS } = require('../config/supabase');
+        const Attachment = require('../models/Attachment');
+        
+        for (const file of files) {
+          const fileName = `worklog_${workLog.id}_${Date.now()}_${file.originalname}`;
+          
+          // Supabase Storage에 업로드
+          const { data, error } = await supabase.storage
+            .from(STORAGE_BUCKETS.WORK_LOGS)
+            .upload(fileName, file.buffer, {
+              contentType: file.mimetype,
+              upsert: false
+            });
+
+          if (!error) {
+            // Public URL 생성
+            const { data: { publicUrl } } = supabase.storage
+              .from(STORAGE_BUCKETS.WORK_LOGS)
+              .getPublicUrl(fileName);
+            
+            // Attachment 모델에 저장
+            await Attachment.create({
+              taskId: workLog.id,
+              filename: fileName,
+              originalName: file.originalname,
+              fileUrl: publicUrl,
+              fileSize: file.size,
+              mimeType: file.mimetype
+            });
+            
+            console.log('✅ File uploaded:', publicUrl);
+          } else {
+            console.error('파일 업로드 실패:', error);
+          }
+        }
+      } catch (uploadError) {
+        console.error('파일 업로드 중 오류:', uploadError);
+        // 파일 업로드 실패해도 작업일지는 등록됨
+      }
+    }
+
+    // 생성된 작업일지 정보와 관련 데이터 조회 (첨부파일 포함)
+    const Attachment = require('../models/Attachment');
     const workLogWithDetails = await Task.findByPk(workLog.id, {
       include: [
         {
@@ -446,6 +492,10 @@ exports.createWorkLog = async (req, res) => {
           model: User,
           as: 'creator',
           attributes: ['id', 'email', 'phone', 'role']
+        },
+        {
+          model: Attachment,
+          as: 'attachments'
         }
       ]
     });
@@ -485,6 +535,7 @@ exports.getWorkLogs = async (req, res) => {
       whereClause.workDate = workDate;
     }
 
+    const Attachment = require('../models/Attachment');
     const workLogs = await Task.findAll({
       where: whereClause,
       attributes: ['id', 'workDate', 'description', 'effort', 'dailyRate', 'createdAt', 'updatedAt'],
@@ -504,6 +555,10 @@ exports.getWorkLogs = async (req, res) => {
           model: User,
           as: 'creator',
           attributes: ['id', 'email', 'phone', 'role']
+        },
+        {
+          model: Attachment,
+          as: 'attachments'
         }
       ],
       order: [['workDate', 'DESC'], ['createdAt', 'DESC']]

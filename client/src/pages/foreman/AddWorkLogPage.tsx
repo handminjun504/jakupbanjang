@@ -157,27 +157,14 @@ const AddWorkLogPage: React.FC = () => {
       // 각 근무자별로 작업일지 등록
       for (const worker of selectedWorkers) {
         try {
-          // FormData 사용 (파일 업로드를 위해)
-          const formData = new FormData();
-          formData.append('workerId', worker.workerId.toString());
-          formData.append('description', description);
-          formData.append('effort', worker.effort);
-          formData.append('workDate', workDate);
-          formData.append('siteId', selectedSiteId.toString());
-          
-          // 첨부파일 추가
-          attachments.forEach((file) => {
-            formData.append('attachments', file);
-          });
-          
-          // TODO: FormData를 사용하도록 API 수정 필요
-          // 임시로 기존 방식 사용
+          // 파일 첨부 지원
           await createWorkLog({
             workerId: worker.workerId,
             description: description,
             effort: parseFloat(worker.effort),
             workDate: workDate,
-            siteId: selectedSiteId
+            siteId: selectedSiteId,
+            attachments: attachments.length > 0 ? attachments : undefined  // 파일 추가
           });
           
           successCount++;

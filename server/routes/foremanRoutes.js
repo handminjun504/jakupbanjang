@@ -30,8 +30,8 @@ router.put('/workers/:id/resign', foremanController.resignWorker);
 // GET /api/foreman/tasks - 현장별 작업 목록 조회
 router.get('/tasks', foremanController.getTasksBySite);
 
-// POST /api/foreman/worklogs - 작업일지 등록
-router.post('/worklogs', foremanController.createWorkLog);
+// POST /api/foreman/worklogs - 작업일지 등록 (파일 첨부 지원)
+router.post('/worklogs', upload.array('attachments', 10), foremanController.createWorkLog);
 
 // GET /api/foreman/worklogs - 작업일지 목록 조회
 router.get('/worklogs', foremanController.getWorkLogs);

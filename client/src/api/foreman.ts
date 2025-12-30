@@ -154,17 +154,41 @@ export const getTasksBySite = async (siteId: number) => {
   }
 };
 
-// 작업일지 등록
+// 작업일지 등록 (파일 첨부 지원)
 export const createWorkLog = async (workLogData: {
   workerId: number;
   description: string;
   effort: number;
   workDate: string;
   siteId: number;
+  attachments?: File[];  // 파일 배열 추가
 }) => {
   try {
-    const response = await apiClient.post('/foreman/worklogs', workLogData);
-    return response.data.data || response.data;
+    // 파일이 있으면 FormData 사용, 없으면 JSON
+    if (workLogData.attachments && workLogData.attachments.length > 0) {
+      const formData = new FormData();
+      formData.append('workerId', workLogData.workerId.toString());
+      formData.append('description', workLogData.description);
+      formData.append('effort', workLogData.effort.toString());
+      formData.append('workDate', workLogData.workDate);
+      formData.append('siteId', workLogData.siteId.toString());
+      
+      // 여러 파일 추가
+      workLogData.attachments.forEach((file) => {
+        formData.append('attachments', file);
+      });
+      
+      const response = await apiClient.post('/foreman/worklogs', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data.data || response.data;
+    } else {
+      // 파일 없으면 기존 방식
+      const response = await apiClient.post('/foreman/worklogs', workLogData);
+      return response.data.data || response.data;
+    }
   } catch (error: any) {
     throw new Error(error.response?.data?.message || '작업일지 등록에 실패했습니다.');
   }
