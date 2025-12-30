@@ -244,6 +244,20 @@ const ExpenseManagementPage: React.FC = () => {
                     {new Date(selectedExpense.createdAt).toLocaleString('ko-KR')}
                   </DetailValue>
                 </DetailRow>
+                {selectedExpense.attachmentUrl && (
+                  <DetailRow>
+                    <DetailLabel>첨부파일:</DetailLabel>
+                    <DetailValue>
+                      <AttachmentLink 
+                        href={selectedExpense.attachmentUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        📎 첨부파일 보기
+                      </AttachmentLink>
+                    </DetailValue>
+                  </DetailRow>
+                )}
               </ModalBody>
             </ModalContent>
           </Modal>
@@ -462,6 +476,26 @@ const DetailValue = styled.span<{ $highlight?: boolean; $error?: boolean }>`
   font-weight: ${props => props.$highlight ? '600' : '400'};
   word-break: break-word;
   flex: 1;
+`;
+
+const AttachmentLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: ${theme.colors.accent};
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: ${theme.borderRadius.medium};
+  background-color: ${theme.colors.background.secondary};
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${theme.colors.accent};
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const Modal = styled.div`
