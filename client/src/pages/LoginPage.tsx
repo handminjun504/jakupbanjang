@@ -14,6 +14,37 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // 휴대폰 번호 자동 하이픈 포맷팅
+  const formatPhoneNumber = (value: string): string => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, '');
+    
+    // 최대 11자리로 제한
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // 하이픈 추가
+    if (limitedNumbers.length <= 3) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 7) {
+      return `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`;
+    } else {
+      return `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+    }
+  };
+
+  // 휴대폰 번호 입력 핸들러
+  const handleIdentifierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    if (userType === 'foreman') {
+      // 작업반장: 휴대폰 번호 자동 포맷팅
+      setIdentifier(formatPhoneNumber(value));
+    } else {
+      // 관리자: 이메일은 그대로
+      setIdentifier(value);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -81,7 +112,7 @@ const LoginPage: React.FC = () => {
                   type={userType === 'foreman' ? 'tel' : 'email'}
                   placeholder={userType === 'foreman' ? '010-1234-5678' : 'email@example.com'}
                   value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
+                  onChange={handleIdentifierChange}
                   required
                 />
               </FormGroup>

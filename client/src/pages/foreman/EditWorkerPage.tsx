@@ -57,10 +57,31 @@ const EditWorkerPage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // 휴대폰 번호 자동 하이픈 추가
+    if (name === 'phoneNumber') {
+      const numbers = value.replace(/[^\d]/g, '');
+      const limitedNumbers = numbers.slice(0, 11);
+      
+      let formattedPhone = '';
+      if (limitedNumbers.length <= 3) {
+        formattedPhone = limitedNumbers;
+      } else if (limitedNumbers.length <= 7) {
+        formattedPhone = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`;
+      } else {
+        formattedPhone = `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: formattedPhone
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
