@@ -178,12 +178,13 @@ exports.getWorkersBySite = async (req, res) => {
           createdAt: worker.createdAt
         };
       } catch (error) {
-        console.error('RRN decryption error for worker:', worker.id, error);
-        // 복호화 실패 시 마스킹된 값 반환
+        console.error('❌ RRN decryption error for worker:', worker.id, error);
+        console.error('❌ Encrypted RRN value:', worker.rrn);
+        // 복호화 실패 시 고정 마스킹 값 반환
         return {
           id: worker.id,
           name: worker.name,
-          rrn: maskRRN(worker.rrn), // 복호화 실패 시 마스킹
+          rrn: '******-*******', // 복호화 실패 시 고정 마스킹
           phoneNumber: worker.phoneNumber,
           dailyRate: worker.dailyRate,
           remarks: worker.remarks,
@@ -598,13 +599,38 @@ exports.getWorkersList = async (req, res) => {
 
     const workers = await Worker.findAll({
       where: { foremanId, status: 'active' },
-      attributes: ['id', 'name', 'phoneNumber', 'dailyRate'],
+      attributes: ['id', 'name', 'rrn', 'phoneNumber', 'dailyRate'],
       order: [['name', 'ASC']]
+    });
+
+    // 주민번호 복호화하여 반환
+    const workersWithDecryptedRRN = workers.map(worker => {
+      try {
+        const decryptedRRN = decryptRRN(worker.rrn);
+        return {
+          id: worker.id,
+          name: worker.name,
+          rrn: decryptedRRN, // 복호화된 주민번호
+          phoneNumber: worker.phoneNumber,
+          dailyRate: worker.dailyRate
+        };
+      } catch (error) {
+        console.error('❌ RRN decryption error for worker:', worker.id, error);
+        console.error('❌ Encrypted RRN value:', worker.rrn);
+        // 복호화 실패 시 고정 마스킹 값 반환
+        return {
+          id: worker.id,
+          name: worker.name,
+          rrn: '******-*******', // 복호화 실패 시 고정 마스킹
+          phoneNumber: worker.phoneNumber,
+          dailyRate: worker.dailyRate
+        };
+      }
     });
 
     res.status(200).json({
       success: true,
-      data: workers
+      data: workersWithDecryptedRRN
     });
   } catch (error) {
     console.error('Get workers list error:', error);
