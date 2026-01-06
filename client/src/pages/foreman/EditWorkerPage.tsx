@@ -23,6 +23,24 @@ const EditWorkerPage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // 단가 증가/감소 핸들러 (10,000원 단위)
+  const handleDailyRateChange = (action: 'increment' | 'decrement') => {
+    const currentRate = parseInt(formData.dailyRate) || 0;
+    const step = 10000;
+    
+    let newRate = currentRate;
+    if (action === 'increment') {
+      newRate = currentRate + step;
+    } else if (action === 'decrement') {
+      newRate = Math.max(0, currentRate - step); // 0 이하로 내려가지 않도록
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      dailyRate: newRate.toString()
+    }));
+  };
+
   useEffect(() => {
     fetchWorkerData();
   }, [workerId]);
@@ -76,7 +94,16 @@ const EditWorkerPage: React.FC = () => {
         ...prev,
         [name]: formattedPhone
       }));
-    } else {
+    } 
+    // 단가 자동 콤마 추가
+    else if (name === 'dailyRate') {
+      const numbers = value.replace(/[^\d]/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: numbers
+      }));
+    } 
+    else {
       setFormData(prev => ({
         ...prev,
         [name]: value
@@ -180,15 +207,20 @@ const EditWorkerPage: React.FC = () => {
 
           <FormGroup>
             <Label htmlFor="dailyRate">단가 (원)</Label>
-            <StyledInput
-              id="dailyRate"
-              name="dailyRate"
-              type="number"
-              placeholder="일일 단가를 입력하세요"
-              value={formData.dailyRate}
-              onChange={handleChange}
-              min="0"
-            />
+            <DailyRateWrapper>
+              <StyledInput
+                id="dailyRate"
+                name="dailyRate"
+                type="text"
+                placeholder="150,000"
+                value={formData.dailyRate ? Number(formData.dailyRate).toLocaleString() : ''}
+                onChange={handleChange}
+              />
+              <SpinnerButtons>
+                <SpinnerButton type="button" onClick={() => handleDailyRateChange('increment')}>▲</SpinnerButton>
+                <SpinnerButton type="button" onClick={() => handleDailyRateChange('decrement')}>▼</SpinnerButton>
+              </SpinnerButtons>
+            </DailyRateWrapper>
           </FormGroup>
 
           <FormGroup>
@@ -228,6 +260,45 @@ const EditWorkerPage: React.FC = () => {
     </Container>
   );
 };
+
+const DailyRateWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SpinnerButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const SpinnerButton = styled.button`
+  width: 28px;
+  height: 20px;
+  padding: 0;
+  background-color: ${theme.colors.background.secondary};
+  border: 1px solid ${theme.colors.border};
+  border-radius: ${theme.borderRadius.small};
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: ${theme.colors.text.secondary};
+
+  &:hover {
+    background-color: ${theme.colors.accent};
+    color: ${theme.colors.text.primary};
+    border-color: ${theme.colors.accent};
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+`;
 
 const Container = styled.div`
   min-height: 100vh;
