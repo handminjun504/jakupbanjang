@@ -17,6 +17,7 @@ interface Worker {
 interface WorkerEffort {
   workerId: number;
   workerName: string;
+  workerRRN?: string; // 주민번호 추가
   effort: string;
   dailyRate: string; // 수정 가능하도록 string으로 관리
 }
@@ -61,10 +62,11 @@ const AddWorkLogPage: React.FC = () => {
       // 이미 선택된 경우 제거
       setSelectedWorkers(selectedWorkers.filter(w => w.workerId !== worker.id));
     } else {
-      // 새로 선택된 경우 추가 (단가도 함께 저장)
+      // 새로 선택된 경우 추가 (단가와 주민번호도 함께 저장)
       setSelectedWorkers([...selectedWorkers, {
         workerId: worker.id,
         workerName: worker.name,
+        workerRRN: worker.rrn, // 주민번호 추가
         effort: '1',
         dailyRate: worker.dailyRate ? worker.dailyRate.toString() : '0'
       }]);
@@ -251,7 +253,19 @@ const AddWorkLogPage: React.FC = () => {
                           checked={selectedWorkers.some(w => w.workerId === worker.id)}
                           onChange={() => handleWorkerToggle(worker)}
                         />
-                        <span>{worker.name}{worker.position && ` (${worker.position})`}</span>
+                        <WorkerInfo>
+                          <WorkerName>{worker.name}</WorkerName>
+                          {worker.rrn && (
+                            <WorkerRRN>
+                              {worker.rrn.replace(/-/g, '').length === 13 
+                                ? `(${worker.rrn.replace(/-/g, '').substring(0, 6)}-${worker.rrn.replace(/-/g, '').substring(6, 13)})`
+                                : worker.rrn.includes('-') 
+                                  ? `(${worker.rrn})`
+                                  : `(${worker.rrn})`
+                              }
+                            </WorkerRRN>
+                          )}
+                        </WorkerInfo>
                       </CheckboxLabel>
                     </WorkerCheckboxItem>
                   ))}
@@ -293,7 +307,17 @@ const AddWorkLogPage: React.FC = () => {
                       return (
                         <WorkerCard key={worker.workerId}>
                           <WorkerCardHeader>
-                            <WorkerCardName>{worker.workerName}</WorkerCardName>
+                            <WorkerCardName>
+                              {worker.workerName}
+                              {worker.workerRRN && (
+                                <WorkerCardRRN>
+                                  {worker.workerRRN.replace(/-/g, '').length === 13 
+                                    ? ` (${worker.workerRRN.replace(/-/g, '').substring(0, 6)}-${worker.workerRRN.replace(/-/g, '').substring(6, 13)})`
+                                    : ` (${worker.workerRRN})`
+                                  }
+                                </WorkerCardRRN>
+                              )}
+                            </WorkerCardName>
                           </WorkerCardHeader>
                           <WorkerCardBody>
                             <InputRow>
@@ -549,6 +573,24 @@ const Checkbox = styled.input`
   accent-color: ${theme.colors.accent};
 `;
 
+const WorkerInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const WorkerName = styled.span`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${theme.colors.text.primary};
+`;
+
+const WorkerRRN = styled.span`
+  font-size: 12px;
+  color: ${theme.colors.text.secondary};
+  font-family: 'Courier New', monospace;
+`;
+
 const BulkEffortRow = styled.div`
   display: flex;
   gap: ${theme.spacing.sm};
@@ -615,6 +657,14 @@ const WorkerCardName = styled.div`
   @media (max-width: 768px) {
     font-size: 15px;
   }
+`;
+
+const WorkerCardRRN = styled.span`
+  font-size: 13px;
+  font-weight: 400;
+  color: ${theme.colors.text.secondary};
+  margin-left: 8px;
+  font-family: 'Courier New', monospace;
 `;
 
 const WorkerCardBody = styled.div`
