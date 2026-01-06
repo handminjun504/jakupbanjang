@@ -24,5 +24,7 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      - key: SKIP_RRN_VALIDATION
+        value: true
     healthCheckPath: /
 

@@ -67,8 +67,11 @@ exports.createWorker = async (req, res) => {
     const foremanId = req.user.id;
     const companyId = req.user.companyId;
 
+    console.log('📝 근무자 추가 요청:', { name, rrn, phoneNumber, dailyRate, foremanId });
+
     // 필수 필드 검증
     if (!name || !rrn) {
+      console.log('❌ 필수 필드 누락:', { name: !!name, rrn: !!rrn });
       return res.status(400).json({
         success: false,
         message: '이름과 주민등록번호는 필수 항목입니다.'
@@ -77,12 +80,14 @@ exports.createWorker = async (req, res) => {
 
     // 주민등록번호 형식 검증 (하이픈 제거)
     const cleanRRN = rrn.replace(/-/g, '');
+    console.log('🔍 주민번호 검증:', { original: rrn, cleaned: cleanRRN, length: cleanRRN.length });
     
     // 주민등록번호 유효성 검사
     if (!validateRRN(cleanRRN)) {
+      console.log('❌ 주민번호 유효성 검사 실패:', cleanRRN);
       return res.status(400).json({
         success: false,
-        message: '유효하지 않은 주민등록번호입니다.'
+        message: '유효하지 않은 주민등록번호입니다. (13자리 숫자로 입력해주세요)'
       });
     }
 
