@@ -447,18 +447,23 @@ exports.createWorkLog = async (req, res) => {
           // 안전한 파일명 생성 (한글, 공백, 특수문자 제거)
           const fileExt = path.extname(file.originalname).toLowerCase();
           const randomString = crypto.randomBytes(8).toString('hex');
-          const safeFileName = `worklog_${workLog.id}_${Date.now()}_${randomString}${fileExt}`;
+          
+          // 건설사별 폴더 구조: company-{companyId}/worklog_xxx
+          const folderPath = `company-${companyId}`;
+          const fileName = `worklog_${workLog.id}_${Date.now()}_${randomString}${fileExt}`;
+          const fullPath = `${folderPath}/${fileName}`;
           
           console.log('📤 Uploading file:', {
             original: file.originalname,
-            safe: safeFileName,
-            size: file.size
+            path: fullPath,
+            size: file.size,
+            company: companyId
           });
           
-          // Supabase Storage에 업로드
+          // Supabase Storage에 업로드 (자동으로 폴더 생성)
           const { data, error } = await supabase.storage
             .from(STORAGE_BUCKETS.WORK_LOGS)
-            .upload(safeFileName, file.buffer, {
+            .upload(fullPath, file.buffer, {
               contentType: file.mimetype,
               upsert: false
             });
@@ -467,7 +472,7 @@ exports.createWorkLog = async (req, res) => {
             // Public URL 생성
             const { data: { publicUrl } } = supabase.storage
               .from(STORAGE_BUCKETS.WORK_LOGS)
-              .getPublicUrl(safeFileName);
+              .getPublicUrl(fullPath);
             
             // Attachment 모델에 저장
             await Attachment.create({
@@ -475,7 +480,7 @@ exports.createWorkLog = async (req, res) => {
               user_id: creatorId,
               filename: file.originalname, // 원본 파일명
               file_path: publicUrl, // Public URL
-              storage_path: safeFileName, // Storage 내부 경로
+              storage_path: fullPath, // Storage 내부 경로 (폴더 포함)
               file_size: file.size,
               mime_type: file.mimetype
             });
@@ -815,17 +820,22 @@ exports.createExpense = async (req, res) => {
         // 안전한 파일명 생성 (한글, 공백, 특수문자 제거)
         const fileExt = path.extname(file.originalname).toLowerCase();
         const randomString = crypto.randomBytes(8).toString('hex');
-        const safeFileName = `expense_${Date.now()}_${randomString}${fileExt}`;
+        
+        // 건설사별 폴더 구조: company-{companyId}/expense_xxx
+        const folderPath = `company-${companyId}`;
+        const fileName = `expense_${Date.now()}_${randomString}${fileExt}`;
+        const fullPath = `${folderPath}/${fileName}`;
         
         console.log('📤 Uploading expense file:', {
           original: file.originalname,
-          safe: safeFileName,
-          size: file.size
+          path: fullPath,
+          size: file.size,
+          company: companyId
         });
         
         const { data, error } = await supabase.storage
           .from(STORAGE_BUCKETS.EXPENSES)
-          .upload(safeFileName, file.buffer, {
+          .upload(fullPath, file.buffer, {
             contentType: file.mimetype,
             upsert: false
           });
@@ -836,7 +846,7 @@ exports.createExpense = async (req, res) => {
         } else {
           const { data: { publicUrl } } = supabase.storage
             .from(STORAGE_BUCKETS.EXPENSES)
-            .getPublicUrl(safeFileName);
+            .getPublicUrl(fullPath);
           
           attachmentUrl = publicUrl;
           console.log('✅ Expense file uploaded successfully:', attachmentUrl);
