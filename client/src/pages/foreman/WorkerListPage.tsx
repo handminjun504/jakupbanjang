@@ -40,7 +40,6 @@ const WorkerListPage: React.FC = () => {
       setLoading(true);
       setError('');
       const workers = await getWorkersBySite();
-      console.log('근무자 목록:', workers);
       setWorkers(workers);
     } catch (error: any) {
       console.error('근무자 조회 실패:', error);

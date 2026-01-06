@@ -53,9 +53,6 @@ const LoginPage: React.FC = () => {
     try {
       const result = await login(identifier, password, userType!);
       
-      console.log('로그인 성공! 토큰이 localStorage에 저장되었습니다.');
-      console.log('사용자 정보:', result.data.user);
-      
       // 역할에 따라 다른 페이지로 리다이렉트
       if (userType === 'manager') {
         // 관리자는 관리자 대시보드로
