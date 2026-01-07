@@ -123,8 +123,12 @@ const updateSite = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, address, status, startDate, endDate } = req.body;
+    const companyId = req.user.companyId;
 
-    const site = await Site.findByPk(id);
+    // 🔒 보안: 같은 회사의 현장만 수정 가능
+    const site = await Site.findOne({
+      where: { id, companyId }
+    });
     
     if (!site) {
       return res.status(404).json({
@@ -1040,6 +1044,24 @@ const assignForemenToSite = async (req, res) => {
         success: false,
         message: '작업반장 ID는 배열이어야 합니다.'
       });
+    }
+
+    // 🔒 보안: 할당할 작업반장들이 같은 회사에 속하는지 확인
+    if (foremanIds.length > 0) {
+      const foremen = await User.findAll({
+        where: {
+          id: foremanIds,
+          companyId,
+          role: 'foreman'
+        }
+      });
+
+      if (foremen.length !== foremanIds.length) {
+        return res.status(403).json({
+          success: false,
+          message: '다른 회사의 작업반장을 할당할 수 없습니다.'
+        });
+      }
     }
 
     // 기존 할당 삭제
