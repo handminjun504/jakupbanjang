@@ -539,12 +539,13 @@ exports.createWorkLog = async (req, res) => {
 };
 
 /**
- * 작업일지 목록 조회
+ * 작업일지 목록 조회 (작업반장은 본인이 작성한 것만 조회)
  */
 exports.getWorkLogs = async (req, res) => {
   try {
     const { siteId, workDate } = req.query;
     const companyId = req.user.companyId;
+    const creatorId = req.user.id; // 작업반장 본인 ID
 
     if (!siteId) {
       return res.status(400).json({
@@ -553,7 +554,8 @@ exports.getWorkLogs = async (req, res) => {
       });
     }
 
-    const whereClause = { siteId, companyId };
+    // 작업반장은 본인이 작성한 작업일지만 조회 가능
+    const whereClause = { siteId, companyId, creatorId };
     if (workDate) {
       whereClause.workDate = workDate;
     }
