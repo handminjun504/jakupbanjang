@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { StyledInput } from '../components/common/StyledInput';
 import StyledButton from '../components/common/StyledButton';
 import { theme } from '../styles/theme';
 import { signupForeman, signupManager } from '../api/auth';
 
 const SignupPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [userType, setUserType] = useState<'foreman' | 'manager' | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -17,6 +19,14 @@ const SignupPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // URL 파라미터로 userType 자동 설정
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'foreman' || type === 'manager') {
+      setUserType(type);
+    }
+  }, [searchParams]);
 
   // 휴대폰 번호 자동 하이픈 포맷팅
   const formatPhoneNumber = (value: string): string => {
@@ -50,15 +60,23 @@ const SignupPage: React.FC = () => {
       if (userType === 'foreman') {
         // 작업반장 회원가입 (이름 + 휴대폰 + 초대 코드)
         await signupForeman(name, phone, password, inviteCode);
-        alert('작업반장 회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.');
+        toast.success('작업반장 회원가입이 완료되었습니다!', {
+          position: 'top-center',
+          autoClose: 2000,
+        });
+        setTimeout(() => navigate('/login'), 2000);
       } else {
         // 관리자 회원가입 (이메일 + 기업명)
         const response = await signupManager(email, password, companyName);
-        alert(`관리자 계정이 생성되었습니다.\n초대 코드: ${response.data.company.inviteCode}\n\n이 코드를 작업반장들과 공유하세요.`);
+        toast.success(
+          `회원가입 완료! 초대 코드: ${response.data.company.inviteCode}`,
+          {
+            position: 'top-center',
+            autoClose: 5000,
+          }
+        );
+        setTimeout(() => navigate('/login'), 5000);
       }
-      
-      // 로그인 페이지로 리다이렉트
-      navigate('/login');
     } catch (err: any) {
       setError(err.message || '회원가입에 실패했습니다.');
     } finally {

@@ -11,6 +11,7 @@ interface Worker {
   id: number;
   name: string;
   position?: string;
+  rrn?: string; // 주민번호
   dailyRate?: number;
 }
 

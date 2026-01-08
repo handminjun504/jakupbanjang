@@ -7,6 +7,22 @@ import { theme } from '../styles/theme';
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleForemanLogin = () => {
+    navigate('/login?type=foreman');
+  };
+
+  const handleManagerLogin = () => {
+    navigate('/login?type=manager');
+  };
+
+  const handleForemanSignup = () => {
+    navigate('/signup?type=foreman');
+  };
+
+  const handleManagerSignup = () => {
+    navigate('/signup?type=manager');
+  };
+
   return (
     <Container>
       <ContentWrapper>
@@ -15,25 +31,52 @@ const HomePage: React.FC = () => {
         </LogoSection>
         
         <MainContent>
-          <Title>현장선택</Title>
-          <Subtitle>선택해주세요</Subtitle>
+          <Title>작업 현장 관리 시스템</Title>
+          <Subtitle>로그인 유형을 선택하세요</Subtitle>
         </MainContent>
         
         <ButtonSection>
-          <StyledButton 
-            variant="primary" 
-            onClick={() => navigate('/login')}
-            fullWidth
-          >
-            로그인
-          </StyledButton>
-          <StyledButton 
-            variant="secondary" 
-            onClick={() => navigate('/signup')}
-            fullWidth
-          >
-            회원가입
-          </StyledButton>
+          <ButtonGroup>
+            <GroupTitle>👷 작업반장</GroupTitle>
+            <ButtonRow>
+              <StyledButton 
+                variant="primary" 
+                onClick={handleForemanLogin}
+                fullWidth
+              >
+                작업반장 로그인
+              </StyledButton>
+              <StyledButton 
+                variant="secondary" 
+                onClick={handleForemanSignup}
+                fullWidth
+              >
+                작업반장 회원가입
+              </StyledButton>
+            </ButtonRow>
+          </ButtonGroup>
+
+          <Divider />
+
+          <ButtonGroup>
+            <GroupTitle>👔 관리자</GroupTitle>
+            <ButtonRow>
+              <StyledButton 
+                variant="primary" 
+                onClick={handleManagerLogin}
+                fullWidth
+              >
+                관리자 로그인
+              </StyledButton>
+              <StyledButton 
+                variant="secondary" 
+                onClick={handleManagerSignup}
+                fullWidth
+              >
+                관리자 회원가입
+              </StyledButton>
+            </ButtonRow>
+          </ButtonGroup>
         </ButtonSection>
       </ContentWrapper>
     </Container>
@@ -118,13 +161,40 @@ const ButtonSection = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: ${theme.spacing.md};
+  gap: ${theme.spacing.xl};
   margin-top: auto;
   
   /* PC 환경에서 버튼 간격 증가 */
   @media (min-width: ${theme.breakpoints.tablet}) {
-    gap: ${theme.spacing.lg};
+    gap: 40px;
   }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.md};
+`;
+
+const GroupTitle = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${theme.colors.text.primary};
+  text-align: center;
+  margin-bottom: ${theme.spacing.sm};
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.sm};
+`;
+
+const Divider = styled.div`
+  height: 1px;
+  background-color: ${theme.colors.border};
+  width: 100%;
+  margin: ${theme.spacing.md} 0;
 `;
 
 export default HomePage;

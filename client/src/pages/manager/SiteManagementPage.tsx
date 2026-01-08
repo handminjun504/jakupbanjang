@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { theme } from '../../styles/theme';
 import { getSites, createSite, updateSite, deleteSite, Site, getForemen, assignForemenToSite, Foreman } from '../../api/admin';
 import StyledButton from '../../components/common/StyledButton';
@@ -64,7 +65,7 @@ const SiteManagementPage: React.FC = () => {
 
   const handleCreateSite = async () => {
     if (!newSite.name) {
-      alert('현장명을 입력해주세요.');
+      toast.warning('현장명을 입력해주세요.');
       return;
     }
 
@@ -75,12 +76,12 @@ const SiteManagementPage: React.FC = () => {
         // 수정
         await updateSite(editingSite.id, newSite);
         siteId = editingSite.id;
-        alert('현장이 수정되었습니다.');
+        toast.success('현장이 수정되었습니다!');
       } else {
         // 생성
         const created = await createSite(newSite);
         siteId = created.id;
-        alert('현장이 생성되었습니다.');
+        toast.success('현장이 생성되었습니다!');
       }
 
       // 작업반장 할당
@@ -94,7 +95,7 @@ const SiteManagementPage: React.FC = () => {
       handleCloseModal();
       fetchSites();
     } catch (err: any) {
-      alert(err.message || '현장 저장에 실패했습니다.');
+      toast.error(err.message || '현장 저장에 실패했습니다.');
     }
   };
 
@@ -119,10 +120,10 @@ const SiteManagementPage: React.FC = () => {
 
     try {
       await deleteSite(site.id);
-      alert('현장이 삭제되었습니다.');
+      toast.success('현장이 삭제되었습니다!');
       fetchSites();
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || '현장 삭제에 실패했습니다.');
+      toast.error(err.response?.data?.message || err.message || '현장 삭제에 실패했습니다.');
     }
   };
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledInput } from '../components/common/StyledInput';
 import StyledButton from '../components/common/StyledButton';
@@ -7,12 +7,21 @@ import { theme } from '../styles/theme';
 import { login } from '../api/auth';
 
 const LoginPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [userType, setUserType] = useState<'foreman' | 'manager' | null>(null);
   const [identifier, setIdentifier] = useState(''); // 휴대폰 또는 이메일
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // URL 파라미터로 userType 자동 설정
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'foreman' || type === 'manager') {
+      setUserType(type);
+    }
+  }, [searchParams]);
 
   // 휴대폰 번호 자동 하이픈 포맷팅
   const formatPhoneNumber = (value: string): string => {
