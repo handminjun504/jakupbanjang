@@ -448,8 +448,8 @@ exports.createWorkLog = async (req, res) => {
           const fileExt = path.extname(file.originalname).toLowerCase();
           const randomString = crypto.randomBytes(8).toString('hex');
           
-          // 건설사별 폴더 구조: company-{companyId}/worklog_xxx
-          const folderPath = `company-${companyId}`;
+          // 업체별/현장별 폴더 구조: company-{companyId}/site-{siteId}/worklog_xxx
+          const folderPath = `company-${companyId}/site-${siteId}`;
           const fileName = `worklog_${workLog.id}_${Date.now()}_${randomString}${fileExt}`;
           const fullPath = `${folderPath}/${fileName}`;
           
@@ -457,7 +457,8 @@ exports.createWorkLog = async (req, res) => {
             original: file.originalname,
             path: fullPath,
             size: file.size,
-            company: companyId
+            company: companyId,
+            site: siteId
           });
           
           // Supabase Storage에 업로드 (자동으로 폴더 생성)
@@ -823,8 +824,8 @@ exports.createExpense = async (req, res) => {
         const fileExt = path.extname(file.originalname).toLowerCase();
         const randomString = crypto.randomBytes(8).toString('hex');
         
-        // 건설사별 폴더 구조: company-{companyId}/expense_xxx
-        const folderPath = `company-${companyId}`;
+        // 업체별/현장별 폴더 구조: company-{companyId}/site-{siteId}/expense_xxx
+        const folderPath = `company-${companyId}/site-${siteId}`;
         const fileName = `expense_${Date.now()}_${randomString}${fileExt}`;
         const fullPath = `${folderPath}/${fileName}`;
         
@@ -832,7 +833,8 @@ exports.createExpense = async (req, res) => {
           original: file.originalname,
           path: fullPath,
           size: file.size,
-          company: companyId
+          company: companyId,
+          site: siteId
         });
         
         const { data, error } = await supabase.storage

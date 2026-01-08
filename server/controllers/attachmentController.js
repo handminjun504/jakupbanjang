@@ -38,7 +38,8 @@ exports.uploadAttachment = async (req, res) => {
     // 파일 확장자 추출
     const fileExt = path.extname(req.file.originalname);
     const fileId = nanoid();
-    const storagePath = `${companyId}/${taskId}/${fileId}${fileExt}`;
+    // 업체별/현장별 폴더 구조: company-{companyId}/site-{siteId}/{taskId}/{fileId}.ext
+    const storagePath = `company-${companyId}/site-${task.siteId}/${taskId}/${fileId}${fileExt}`;
 
     // Supabase Storage에 업로드
     const uploadResult = await uploadFile(
