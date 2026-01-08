@@ -584,6 +584,7 @@ const WorkLogListPage: React.FC = () => {
                                       <AttachmentImage 
                                         src={attachment.file_path} 
                                         alt={attachment.filename}
+                                        loading="lazy"
                                         onClick={() => window.open(attachment.file_path, '_blank')}
                                       />
                                     ) : (

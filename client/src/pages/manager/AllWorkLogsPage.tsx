@@ -363,6 +363,7 @@ const AllWorkLogsPage: React.FC = () => {
                             <AttachmentImage 
                               src={attachment.file_path} 
                               alt={attachment.filename}
+                              loading="lazy"
                               onClick={() => window.open(attachment.file_path, '_blank')}
                             />
                           ) : (
@@ -960,6 +961,7 @@ const AttachmentImage = styled.img`
   object-fit: cover;
   cursor: pointer;
   background-color: #f5f5f5;
+  loading: lazy; /* Lazy loading for images */
   
   &:hover {
     opacity: 0.9;
