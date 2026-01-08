@@ -544,8 +544,8 @@ exports.createWorkLog = async (req, res) => {
 exports.getWorkLogs = async (req, res) => {
   try {
     const { siteId, workDate } = req.query;
+    const foremanId = req.user.id;
     const companyId = req.user.companyId;
-    const creatorId = req.user.id; // 작업반장 본인 ID
 
     if (!siteId) {
       return res.status(400).json({
@@ -554,8 +554,21 @@ exports.getWorkLogs = async (req, res) => {
       });
     }
 
-    // 작업반장은 본인이 작성한 작업일지만 조회 가능
-    const whereClause = { siteId, companyId, creatorId };
+    // 🔧 수정: 해당 현장에 반장이 배정되어 있는지 확인
+    const assignment = await SiteForemanAssignment.findOne({
+      where: { siteId, foremanId }
+    });
+
+    if (!assignment) {
+      return res.status(403).json({
+        success: false,
+        message: '해당 현장에 접근 권한이 없습니다.'
+      });
+    }
+
+    // 🔧 수정: 현장의 모든 작업일지 조회 (creatorId 필터 제거!)
+    // 같은 현장을 담당하는 모든 반장의 작업일지를 볼 수 있어야 함
+    const whereClause = { siteId, companyId };
     if (workDate) {
       whereClause.workDate = workDate;
     }
@@ -563,7 +576,7 @@ exports.getWorkLogs = async (req, res) => {
     const Attachment = require('../models/Attachment');
     const workLogs = await Task.findAll({
       where: whereClause,
-      attributes: ['id', 'workDate', 'description', 'effort', 'dailyRate', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'workDate', 'description', 'effort', 'dailyRate', 'createdAt', 'updatedAt', 'paymentStatus'],
       include: [
         {
           model: Worker,
@@ -579,7 +592,7 @@ exports.getWorkLogs = async (req, res) => {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'email', 'phone', 'role']
+          attributes: ['id', 'name', 'email', 'phone', 'role'] // 누가 작성했는지 표시
         },
         {
           model: Attachment,
@@ -912,13 +925,42 @@ exports.createExpense = async (req, res) => {
 exports.getExpenses = async (req, res) => {
   try {
     const { siteId, status } = req.query;
+    const foremanId = req.user.id;
     const companyId = req.user.companyId;
-    const creatorId = req.user.id; // 작업반장은 본인이 작성한 것만 조회
 
-    const whereClause = { companyId, creatorId };
-    if (siteId) {
-      whereClause.siteId = siteId;
+    // 🔧 수정: 반장이 배정된 현장 ID 목록 조회
+    const assignments = await SiteForemanAssignment.findAll({
+      where: { foremanId },
+      attributes: ['siteId']
+    });
+
+    const assignedSiteIds = assignments.map(a => a.siteId);
+
+    if (assignedSiteIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: []
+      });
     }
+
+    // 🔧 수정: 배정된 현장의 모든 지출결의 조회 (creatorId 필터 제거!)
+    // 같은 현장을 담당하는 모든 반장의 지출결의를 볼 수 있어야 함
+    const whereClause = { 
+      companyId, 
+      siteId: assignedSiteIds // 배정된 현장만
+    };
+
+    if (siteId) {
+      // 특정 현장 필터링 시 권한 확인
+      if (!assignedSiteIds.includes(parseInt(siteId))) {
+        return res.status(403).json({
+          success: false,
+          message: '해당 현장에 접근 권한이 없습니다.'
+        });
+      }
+      whereClause.siteId = parseInt(siteId);
+    }
+
     if (status) {
       whereClause.status = status;
     }
@@ -934,7 +976,7 @@ exports.getExpenses = async (req, res) => {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'email', 'phone', 'role']
+          attributes: ['id', 'name', 'email', 'phone', 'role'] // 누가 작성했는지 표시
         },
         {
           model: User,
