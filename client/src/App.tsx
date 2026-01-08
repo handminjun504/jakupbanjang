@@ -1,31 +1,47 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GlobalStyles from './styles/GlobalStyles';
+import PrivateRoute from './components/PrivateRoute';
+
+// 로딩 컴포넌트
+const LoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh',
+    fontSize: '18px',
+    color: '#666'
+  }}>
+    로딩 중...
+  </div>
+);
+
+// 공통 페이지 (즉시 로드)
 import HomePage from './pages/HomePage';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
-import PrivateRoute from './components/PrivateRoute';
 
-// 관리자 페이지
-import ManagerLayout from './layouts/ManagerLayout';
-import ManagerDashboard from './pages/manager/ManagerDashboard';
-import SiteManagementPage from './pages/manager/SiteManagementPage';
-import AllWorkLogsPage from './pages/manager/AllWorkLogsPage';
-import AllWorkersListPage from './pages/manager/AllWorkersListPage';
-import ExpenseManagementPage from './pages/manager/ExpenseManagementPage';
-import AggregationPage from './pages/manager/AggregationPage';
+// 관리자 페이지 (Lazy Loading)
+const ManagerLayout = lazy(() => import('./layouts/ManagerLayout'));
+const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
+const SiteManagementPage = lazy(() => import('./pages/manager/SiteManagementPage'));
+const AllWorkLogsPage = lazy(() => import('./pages/manager/AllWorkLogsPage'));
+const AllWorkersListPage = lazy(() => import('./pages/manager/AllWorkersListPage'));
+const ExpenseManagementPage = lazy(() => import('./pages/manager/ExpenseManagementPage'));
+const AggregationPage = lazy(() => import('./pages/manager/AggregationPage'));
 
-// 작업반장 페이지
-import WorkerDetailPage from './pages/WorkerDetailPage';
-import ExpenseEntryPage from './pages/ExpenseEntryPage';
-import SiteSelectionPage from './pages/foreman/SiteSelectionPage';
-import AddWorkerPage from './pages/foreman/AddWorkerPage';
-import EditWorkerPage from './pages/foreman/EditWorkerPage';
-import WorkerListPage from './pages/foreman/WorkerListPage';
-import WorkLogListPage from './pages/foreman/WorkLogListPage';
-import AddWorkLogPage from './pages/foreman/AddWorkLogPage';
+// 작업반장 페이지 (Lazy Loading)
+const WorkerDetailPage = lazy(() => import('./pages/WorkerDetailPage'));
+const ExpenseEntryPage = lazy(() => import('./pages/ExpenseEntryPage'));
+const SiteSelectionPage = lazy(() => import('./pages/foreman/SiteSelectionPage'));
+const AddWorkerPage = lazy(() => import('./pages/foreman/AddWorkerPage'));
+const EditWorkerPage = lazy(() => import('./pages/foreman/EditWorkerPage'));
+const WorkerListPage = lazy(() => import('./pages/foreman/WorkerListPage'));
+const WorkLogListPage = lazy(() => import('./pages/foreman/WorkLogListPage'));
+const AddWorkLogPage = lazy(() => import('./pages/foreman/AddWorkLogPage'));
 
 function App() {
   return (
@@ -44,7 +60,8 @@ function App() {
         theme="light"
       />
       <BrowserRouter>
-        <Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
           {/* 공통 페이지 */}
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -147,6 +164,7 @@ function App() {
           {/* 404 - 홈으로 리다이렉트 */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </>
   );

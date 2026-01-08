@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import apiClient from '../../api/axios';
+import { maskRRN } from '../../utils/maskRRN';
 
 interface Foreman {
   id: number;
@@ -235,11 +236,7 @@ const AllWorkersListPage: React.FC = () => {
                       <tr key={worker.id}>
                         <WorkerTd><strong>{worker.name}</strong></WorkerTd>
                         <WorkerTd>
-                          {worker.rrn 
-                            ? worker.rrn.length === 13 
-                              ? `${worker.rrn.substring(0, 6)}-${worker.rrn.substring(6)}` 
-                              : worker.rrn
-                            : '-'}
+                          {maskRRN(worker.rrn) || '-'}
                         </WorkerTd>
                         <WorkerTd>{new Date(worker.createdAt).toLocaleDateString('ko-KR')}</WorkerTd>
                         <WorkerTd $highlight>

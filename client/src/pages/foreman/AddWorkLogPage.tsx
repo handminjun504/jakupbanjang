@@ -7,6 +7,7 @@ import { StyledInput, StyledTextarea } from '../../components/common/StyledInput
 import { theme } from '../../styles/theme';
 import { createWorkLog, getWorkersList } from '../../api/foreman';
 import { useSiteStore } from '../../store/siteStore';
+import { maskRRN } from '../../utils/maskRRN';
 
 interface Worker {
   id: number;
@@ -310,12 +311,7 @@ const AddWorkLogPage: React.FC = () => {
                           <WorkerName>{worker.name}</WorkerName>
                           {worker.rrn && (
                             <WorkerRRN>
-                              {worker.rrn.replace(/-/g, '').length === 13 
-                                ? `(${worker.rrn.replace(/-/g, '').substring(0, 6)}-${worker.rrn.replace(/-/g, '').substring(6, 13)})`
-                                : worker.rrn.includes('-') 
-                                  ? `(${worker.rrn})`
-                                  : `(${worker.rrn})`
-                              }
+                              ({maskRRN(worker.rrn)})
                             </WorkerRRN>
                           )}
                         </WorkerInfo>
@@ -364,10 +360,7 @@ const AddWorkLogPage: React.FC = () => {
                               {worker.workerName}
                               {worker.workerRRN && (
                                 <WorkerCardRRN>
-                                  {worker.workerRRN.replace(/-/g, '').length === 13 
-                                    ? ` (${worker.workerRRN.replace(/-/g, '').substring(0, 6)}-${worker.workerRRN.replace(/-/g, '').substring(6, 13)})`
-                                    : ` (${worker.workerRRN})`
-                                  }
+                                  {' '}({maskRRN(worker.workerRRN)})
                                 </WorkerCardRRN>
                               )}
                             </WorkerCardName>

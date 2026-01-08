@@ -6,6 +6,7 @@ import Tabs from '../../components/common/Tabs';
 import StyledButton from '../../components/common/StyledButton';
 import { theme } from '../../styles/theme';
 import { getWorkersBySite, deleteWorker } from '../../api/foreman';
+import { maskRRN } from '../../utils/maskRRN';
 
 interface Worker {
   id: number;
@@ -126,11 +127,7 @@ const WorkerListPage: React.FC = () => {
                     <tr key={worker.id}>
                       <Td>{worker.name}</Td>
                       <Td>
-                        {worker.rrn 
-                          ? worker.rrn.length === 13 
-                            ? `${worker.rrn.substring(0, 6)}-${worker.rrn.substring(6)}` 
-                            : worker.rrn
-                          : '-'}
+                        {maskRRN(worker.rrn) || '-'}
                       </Td>
                       <Td>{worker.phoneNumber || '-'}</Td>
                       <Td>{worker.dailyRate ? `${worker.dailyRate.toLocaleString()}원` : '-'}</Td>
@@ -164,11 +161,7 @@ const WorkerListPage: React.FC = () => {
                     <CardRow>
                       <CardLabel>주민번호</CardLabel>
                       <CardValue>
-                        {worker.rrn 
-                          ? worker.rrn.length === 13 
-                            ? `${worker.rrn.substring(0, 6)}-${worker.rrn.substring(6)}` 
-                            : worker.rrn
-                          : '-'}
+                        {maskRRN(worker.rrn) || '-'}
                       </CardValue>
                     </CardRow>
                     
