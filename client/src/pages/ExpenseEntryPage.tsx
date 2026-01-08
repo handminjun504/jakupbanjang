@@ -93,7 +93,17 @@ const ExpenseEntryPage: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      
+      // 파일 크기 검증
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`파일 크기가 너무 큽니다.\n최대 10MB까지 업로드 가능합니다.\n현재 파일: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        e.target.value = '';
+        return;
+      }
+      
+      setSelectedFile(file);
     }
   };
 
@@ -251,6 +261,7 @@ const ExpenseEntryPage: React.FC = () => {
                   accept="image/*,.pdf"
                 />
               </FileInputWrapper>
+              <HelpText>이미지 또는 PDF 파일 (최대 10MB)</HelpText>
             </FormGroup>
             
             <SubmitButton onClick={handleSubmit} disabled={loading}>
@@ -906,6 +917,13 @@ const AttachmentLink = styled.a`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const HelpText = styled.p`
+  font-size: 12px;
+  color: ${theme.colors.text.secondary};
+  margin-top: 4px;
+  margin-bottom: 0;
 `;
 
 export default ExpenseEntryPage;

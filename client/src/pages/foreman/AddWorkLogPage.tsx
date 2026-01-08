@@ -119,7 +119,18 @@ const AddWorkLogPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      
+      // 파일 크기 검증
+      const oversizedFiles = filesArray.filter(file => file.size > MAX_FILE_SIZE);
+      if (oversizedFiles.length > 0) {
+        setError(`파일 크기가 너무 큽니다. 각 파일은 최대 10MB까지 업로드 가능합니다.\n큰 파일: ${oversizedFiles.map(f => f.name).join(', ')}`);
+        e.target.value = '';
+        return;
+      }
+      
       setAttachments(prev => [...prev, ...filesArray]);
+      setError(''); // 성공 시 에러 초기화
       // input value 초기화 (같은 파일 재선택 가능하도록)
       e.target.value = '';
     }
@@ -408,7 +419,7 @@ const AddWorkLogPage: React.FC = () => {
                   ))}
                 </AttachmentList>
               )}
-              <HelpText>작업 현장 사진을 여러 장 첨부할 수 있습니다</HelpText>
+              <HelpText>작업 현장 사진을 여러 장 첨부할 수 있습니다 (각 파일 최대 10MB)</HelpText>
             </FormGroup>
 
             {error && <ErrorMessage>{error}</ErrorMessage>}
