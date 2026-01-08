@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Header from '../../components/common/Header';
 import { StyledInput, StyledTextarea } from '../../components/common/StyledInput';
 import { theme } from '../../styles/theme';
@@ -120,16 +121,42 @@ const AddWorkLogPage: React.FC = () => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+      
+      // 파일 형식 검증
+      const invalidFiles = filesArray.filter(file => {
+        const isValidType = ALLOWED_TYPES.includes(file.type);
+        const hasValidExt = ALLOWED_EXTENSIONS.some(ext => file.name.toLowerCase().endsWith(ext));
+        return !isValidType && !hasValidExt;
+      });
+      
+      if (invalidFiles.length > 0) {
+        toast.error(
+          `❌ 지원하지 않는 파일 형식입니다.\n\n` +
+          `📸 지원 형식: JPG, PNG, GIF, WEBP\n\n` +
+          `잘못된 파일: ${invalidFiles.map(f => f.name).join(', ')}`,
+          { autoClose: 5000 }
+        );
+        e.target.value = '';
+        return;
+      }
       
       // 파일 크기 검증
       const oversizedFiles = filesArray.filter(file => file.size > MAX_FILE_SIZE);
       if (oversizedFiles.length > 0) {
-        setError(`파일 크기가 너무 큽니다. 각 파일은 최대 10MB까지 업로드 가능합니다.\n큰 파일: ${oversizedFiles.map(f => f.name).join(', ')}`);
+        toast.error(
+          `⚠️ 파일 크기가 너무 큽니다.\n\n` +
+          `📦 최대 크기: 10MB\n\n` +
+          `큰 파일: ${oversizedFiles.map(f => `${f.name} (${(f.size / 1024 / 1024).toFixed(1)}MB)`).join(', ')}`,
+          { autoClose: 5000 }
+        );
         e.target.value = '';
         return;
       }
       
       setAttachments(prev => [...prev, ...filesArray]);
+      toast.success(`✅ ${filesArray.length}개 파일이 추가되었습니다.`);
       setError(''); // 성공 시 에러 초기화
       // input value 초기화 (같은 파일 재선택 가능하도록)
       e.target.value = '';
@@ -170,11 +197,15 @@ const AddWorkLogPage: React.FC = () => {
       
       let successCount = 0;
       let failCount = 0;
+      const failedWorkers: string[] = [];
       
       // 각 근무자별로 작업일지 등록
       for (const worker of selectedWorkers) {
         try {
-          // 파일 첨부 지원
+          // 진행 상태 표시
+          toast.info(`📝 ${worker.workerName} 작업일지 등록 중...`, { autoClose: 1000 });
+          
+          // 파일 첨부 지원 (자동 재시도 포함)
           await createWorkLog({
             workerId: worker.workerId,
             description: description,
@@ -185,21 +216,31 @@ const AddWorkLogPage: React.FC = () => {
           });
           
           successCount++;
-        } catch (err) {
+          toast.success(`✅ ${worker.workerName} 등록 완료!`);
+        } catch (err: any) {
           console.error(`${worker.workerName} 작업일지 등록 실패:`, err);
           failCount++;
+          failedWorkers.push(worker.workerName);
+          toast.error(`❌ ${worker.workerName} 등록 실패: ${err.message}`);
         }
       }
       
       if (successCount > 0) {
         setSuccess(`${successCount}명의 작업일지가 등록되었습니다!${failCount > 0 ? ` (${failCount}명 실패)` : ''}`);
         
+        // 실패한 근무자가 있으면 재시도 안내
+        if (failedWorkers.length > 0) {
+          setError(`다음 근무자의 등록에 실패했습니다: ${failedWorkers.join(', ')}\n\n아래 "재시도" 버튼을 눌러 다시 시도하세요.`);
+          setLoading(false);
+          return; // 자동 이동 방지
+        }
+        
         // 2초 후 작업일지 목록으로 이동
         setTimeout(() => {
           navigate('/foreman/worklogs');
         }, 2000);
       } else {
-        setError('모든 작업일지 등록에 실패했습니다.');
+        setError('모든 작업일지 등록에 실패했습니다. 네트워크 상태를 확인하고 다시 시도해주세요.');
       }
       
     } catch (error: any) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Header from '../components/common/Header';
 import Tabs from '../components/common/Tabs';
 import StyledButton from '../components/common/StyledButton';
@@ -95,15 +96,38 @@ const ExpenseEntryPage: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+      const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+      const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf'];
+      
+      // 파일 형식 검증
+      const isValidType = ALLOWED_TYPES.includes(file.type);
+      const hasValidExt = ALLOWED_EXTENSIONS.some(ext => file.name.toLowerCase().endsWith(ext));
+      
+      if (!isValidType && !hasValidExt) {
+        toast.error(
+          `❌ 지원하지 않는 파일 형식입니다.\n\n` +
+          `📸 지원 형식: JPG, PNG, GIF, WEBP, PDF\n\n` +
+          `선택한 파일: ${file.name}`,
+          { autoClose: 5000 }
+        );
+        e.target.value = '';
+        return;
+      }
       
       // 파일 크기 검증
       if (file.size > MAX_FILE_SIZE) {
-        alert(`파일 크기가 너무 큽니다.\n최대 10MB까지 업로드 가능합니다.\n현재 파일: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        toast.error(
+          `⚠️ 파일 크기가 너무 큽니다.\n\n` +
+          `📦 최대 크기: 10MB\n` +
+          `현재 파일: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+          { autoClose: 5000 }
+        );
         e.target.value = '';
         return;
       }
       
       setSelectedFile(file);
+      toast.success(`✅ ${file.name} 파일이 선택되었습니다.`);
     }
   };
 
@@ -118,22 +142,22 @@ const ExpenseEntryPage: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!selectedSiteId) {
-      alert('현장을 선택해주세요.');
+      toast.error('현장을 선택해주세요.');
       return;
     }
     
     if (!title.trim()) {
-      alert('제목을 입력해주세요.');
+      toast.error('제목을 입력해주세요.');
       return;
     }
     
     if (!content.trim()) {
-      alert('내용을 입력해주세요.');
+      toast.error('내용을 입력해주세요.');
       return;
     }
     
     if (!amount.trim()) {
-      alert('금액을 입력해주세요.');
+      toast.error('금액을 입력해주세요.');
       return;
     }
     
@@ -141,6 +165,10 @@ const ExpenseEntryPage: React.FC = () => {
       setLoading(true);
       const numericAmount = Number(amount.replace(/,/g, '')); // 콤마 제거 후 숫자로 변환
       
+      // 진행 상태 표시
+      toast.info('📝 지출결의 등록 중...', { autoClose: 1000 });
+      
+      // 자동 재시도 포함
       await createExpense({
         title: title.trim(),
         content: content.trim(),
@@ -150,7 +178,7 @@ const ExpenseEntryPage: React.FC = () => {
         file: selectedFile || undefined  // 파일 추가
       });
       
-      alert('지출결의가 등록되었습니다.\n관리자 승인 후 확정됩니다.');
+      toast.success('✅ 지출결의가 등록되었습니다!\n관리자 승인 후 확정됩니다.');
       setTitle('');
       setContent('');
       setAmount('');
@@ -161,7 +189,7 @@ const ExpenseEntryPage: React.FC = () => {
       setExpenseSubTab('list');
     } catch (error: any) {
       console.error('저장 실패:', error);
-      alert(error.message || '저장에 실패했습니다.');
+      toast.error(`❌ 저장 실패: ${error.message || '네트워크 상태를 확인하고 다시 시도해주세요.'}`);
     } finally {
       setLoading(false);
     }

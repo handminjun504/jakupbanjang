@@ -154,7 +154,41 @@ export const getTasksBySite = async (siteId: number) => {
   }
 };
 
-// 작업일지 등록 (파일 첨부 지원)
+/**
+ * 네트워크 재시도 로직 헬퍼 함수
+ * @param fn 실행할 비동기 함수
+ * @param maxRetries 최대 재시도 횟수 (기본 3회)
+ * @param delay 재시도 간격 (ms, 기본 1000ms)
+ */
+const retryWithExponentialBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> => {
+  let lastError: any;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      
+      // 마지막 시도이거나, 4xx 에러(클라이언트 에러)는 재시도하지 않음
+      if (attempt === maxRetries || (error.response?.status >= 400 && error.response?.status < 500)) {
+        throw error;
+      }
+      
+      // 지수 백오프: 1초 -> 2초 -> 4초
+      const waitTime = delay * Math.pow(2, attempt);
+      console.log(`재시도 ${attempt + 1}/${maxRetries} (${waitTime}ms 후)...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+  
+  throw lastError;
+};
+
+// 작업일지 등록 (파일 첨부 지원 + 네트워크 재시도)
 export const createWorkLog = async (workLogData: {
   workerId: number;
   description: string;
@@ -163,35 +197,38 @@ export const createWorkLog = async (workLogData: {
   siteId: number;
   attachments?: File[];  // 파일 배열 추가
 }) => {
-  try {
-    // 파일이 있으면 FormData 사용, 없으면 JSON
-    if (workLogData.attachments && workLogData.attachments.length > 0) {
-      const formData = new FormData();
-      formData.append('workerId', workLogData.workerId.toString());
-      formData.append('description', workLogData.description);
-      formData.append('effort', workLogData.effort.toString());
-      formData.append('workDate', workLogData.workDate);
-      formData.append('siteId', workLogData.siteId.toString());
-      
-      // 여러 파일 추가
-      workLogData.attachments.forEach((file) => {
-        formData.append('attachments', file);
-      });
-      
-      const response = await apiClient.post('/foreman/worklogs', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      return response.data.data || response.data;
-    } else {
-      // 파일 없으면 기존 방식
-      const response = await apiClient.post('/foreman/worklogs', workLogData);
-      return response.data.data || response.data;
+  return retryWithExponentialBackoff(async () => {
+    try {
+      // 파일이 있으면 FormData 사용, 없으면 JSON
+      if (workLogData.attachments && workLogData.attachments.length > 0) {
+        const formData = new FormData();
+        formData.append('workerId', workLogData.workerId.toString());
+        formData.append('description', workLogData.description);
+        formData.append('effort', workLogData.effort.toString());
+        formData.append('workDate', workLogData.workDate);
+        formData.append('siteId', workLogData.siteId.toString());
+        
+        // 여러 파일 추가
+        workLogData.attachments.forEach((file) => {
+          formData.append('attachments', file);
+        });
+        
+        const response = await apiClient.post('/foreman/worklogs', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          timeout: 30000 // 30초 타임아웃
+        });
+        return response.data.data || response.data;
+      } else {
+        // 파일 없으면 기존 방식
+        const response = await apiClient.post('/foreman/worklogs', workLogData);
+        return response.data.data || response.data;
+      }
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || '작업일지 등록에 실패했습니다.');
     }
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '작업일지 등록에 실패했습니다.');
-  }
+  });
 };
 
 // 작업일지 목록 조회
@@ -241,7 +278,7 @@ export const deleteWorkLog = async (workLogId: number) => {
   }
 };
 
-// 지출결의 등록 (파일 첨부 지원)
+// 지출결의 등록 (파일 첨부 지원 + 네트워크 재시도)
 export const createExpense = async (expenseData: {
   title: string;
   content: string;
@@ -250,27 +287,30 @@ export const createExpense = async (expenseData: {
   siteId: number;
   file?: File;  // 파일 추가
 }) => {
-  try {
-    const formData = new FormData();
-    formData.append('title', expenseData.title);
-    formData.append('content', expenseData.content);
-    formData.append('amount', expenseData.amount.toString());
-    formData.append('expenseDate', expenseData.expenseDate);
-    formData.append('siteId', expenseData.siteId.toString());
-    
-    if (expenseData.file) {
-      formData.append('file', expenseData.file);
-    }
-    
-    const response = await apiClient.post('/foreman/expenses', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+  return retryWithExponentialBackoff(async () => {
+    try {
+      const formData = new FormData();
+      formData.append('title', expenseData.title);
+      formData.append('content', expenseData.content);
+      formData.append('amount', expenseData.amount.toString());
+      formData.append('expenseDate', expenseData.expenseDate);
+      formData.append('siteId', expenseData.siteId.toString());
+      
+      if (expenseData.file) {
+        formData.append('file', expenseData.file);
       }
-    });
-    return response.data.data || response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '지출결의 등록에 실패했습니다.');
-  }
+      
+      const response = await apiClient.post('/foreman/expenses', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 30000 // 30초 타임아웃
+      });
+      return response.data.data || response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || '지출결의 등록에 실패했습니다.');
+    }
+  });
 };
 
 // 지출결의 목록 조회
