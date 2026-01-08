@@ -5,6 +5,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import GlobalStyles from './styles/GlobalStyles';
 import PrivateRoute from './components/PrivateRoute';
 
+// 공통 페이지 (즉시 로드)
+import HomePage from './pages/HomePage';
+import SignupPage from './pages/SignupPage';
+import LoginPage from './pages/LoginPage';
+
 // 로딩 컴포넌트
 const LoadingFallback = () => (
   <div style={{ 
@@ -18,11 +23,6 @@ const LoadingFallback = () => (
     로딩 중...
   </div>
 );
-
-// 공통 페이지 (즉시 로드)
-import HomePage from './pages/HomePage';
-import SignupPage from './pages/SignupPage';
-import LoginPage from './pages/LoginPage';
 
 // 관리자 페이지 (Lazy Loading)
 const ManagerLayout = lazy(() => import('./layouts/ManagerLayout'));
