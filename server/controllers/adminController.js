@@ -85,6 +85,17 @@ const createSite = async (req, res) => {
     const managerId = req.user.id;
     const companyId = req.user.companyId;
 
+    console.log('🔍 Create site request:', {
+      name,
+      address,
+      managerId,
+      companyId,
+      startDate,
+      endDate,
+      userInfo: req.user
+    });
+
+    // 필수 필드 검증
     if (!name) {
       return res.status(400).json({
         success: false,
@@ -92,15 +103,25 @@ const createSite = async (req, res) => {
       });
     }
 
+    if (!managerId || !companyId) {
+      console.error('❌ Missing managerId or companyId');
+      return res.status(400).json({
+        success: false,
+        message: '사용자 인증 정보가 올바르지 않습니다.'
+      });
+    }
+
     const site = await Site.create({
       name,
       address,
       managerId,
-      companyId,  // 기업 ID 추가
-      startDate,
-      endDate,
+      companyId,
+      startDate: startDate || null,
+      endDate: endDate || null,
       status: 'active'
     });
+
+    console.log('✅ Site created successfully:', site.id);
 
     res.status(201).json({
       success: true,
@@ -108,10 +129,18 @@ const createSite = async (req, res) => {
       data: site
     });
   } catch (error) {
-    console.error('Create site error:', error);
+    console.error('❌ Create site error:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      sql: error.sql,
+      original: error.original
+    });
+    
     res.status(500).json({
       success: false,
-      message: '현장 생성에 실패했습니다.'
+      message: '현장 생성에 실패했습니다.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
