@@ -221,7 +221,7 @@ const AddWorkerPage: React.FC = () => {
               placeholder="특이사항이나 메모를 입력하세요"
               value={formData.remarks}
               onChange={handleChange}
-              rows={4}
+              rows={3}
             />
           </FormGroup>
 
@@ -298,36 +298,59 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
-  padding: ${theme.spacing.md};
+  padding: ${theme.spacing.sm} ${theme.spacing.md};
   max-width: 600px;
   margin: 0 auto;
+  
+  @media (min-width: ${theme.breakpoints.tablet}) {
+    padding: ${theme.spacing.md};
+  }
 `;
 
 const PageTitle = styled.h1`
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: ${theme.colors.text.primary};
-  margin-bottom: ${theme.spacing.lg};
+  margin-bottom: ${theme.spacing.md};
+  margin-top: ${theme.spacing.sm};
   text-align: center;
+  
+  @media (min-width: ${theme.breakpoints.tablet}) {
+    font-size: 24px;
+    margin-bottom: ${theme.spacing.lg};
+  }
 `;
 
 const Form = styled.form`
   background-color: ${theme.colors.background.secondary};
-  padding: ${theme.spacing.lg};
+  padding: ${theme.spacing.md};
   border-radius: ${theme.borderRadius.medium};
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+  @media (min-width: ${theme.breakpoints.tablet}) {
+    padding: ${theme.spacing.lg};
+  }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: ${theme.spacing.lg};
+  margin-bottom: ${theme.spacing.md};
+  
+  @media (min-width: ${theme.breakpoints.tablet}) {
+    margin-bottom: ${theme.spacing.lg};
+  }
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: ${theme.colors.text.primary};
-  margin-bottom: ${theme.spacing.xs};
+  margin-bottom: 4px;
+  
+  @media (min-width: ${theme.breakpoints.tablet}) {
+    font-size: 14px;
+    margin-bottom: ${theme.spacing.xs};
+  }
 `;
 
 const Required = styled.span`
@@ -342,8 +365,13 @@ const HelpText = styled.p`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: ${theme.spacing.md};
-  margin-top: ${theme.spacing.xl};
+  gap: ${theme.spacing.sm};
+  margin-top: ${theme.spacing.md};
+  
+  @media (min-width: ${theme.breakpoints.tablet}) {
+    gap: ${theme.spacing.md};
+    margin-top: ${theme.spacing.xl};
+  }
 `;
 
 const ErrorMessage = styled.div`
