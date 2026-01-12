@@ -986,7 +986,7 @@ const getAggregationData = async (req, res) => {
       creator: expense.creator,
       title: expense.title,
       content: expense.content,
-      amount: expense.amount,
+      amount: Number(expense.amount) || 0, // 명시적으로 Number로 변환
       paymentStatus: expense.status === 'approved' ? '지급완료' : '미지급',
       status: expense.status,
       createdAt: expense.createdAt

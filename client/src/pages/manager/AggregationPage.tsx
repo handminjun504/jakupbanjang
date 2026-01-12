@@ -116,8 +116,8 @@ const AggregationPage: React.FC = () => {
       }
       
       workLogGroups[key].items.push(item);
-      workLogGroups[key].totalEffort += item.effort || 0;
-      workLogGroups[key].totalAmount += item.amount || 0;
+      workLogGroups[key].totalEffort += Number(item.effort) || 0;
+      workLogGroups[key].totalAmount += Number(item.amount) || 0;
       
       // 지급완료가 하나라도 있으면 지급완료로 표시
       if (item.paymentStatus === '지급완료') {
@@ -355,7 +355,7 @@ const AggregationPage: React.FC = () => {
                           }
                         </Td>
                         <Td>
-                          <AmountText>{(item.totalAmount || item.amount || 0).toLocaleString()}원</AmountText>
+                          <AmountText>{(Number(item.totalAmount) || Number(item.amount) || 0).toLocaleString()}원</AmountText>
                         </Td>
                         <Td>
                           <StatusBadge $status={item.paymentStatus || item.status}>
@@ -444,7 +444,7 @@ const AggregationPage: React.FC = () => {
                       </TotalRow>
                       <TotalRow>
                         <TotalLabel>총 금액:</TotalLabel>
-                        <TotalValue $highlight>{(selectedItem.totalAmount || 0).toLocaleString()}원</TotalValue>
+                        <TotalValue $highlight>{(Number(selectedItem.totalAmount) || 0).toLocaleString()}원</TotalValue>
                       </TotalRow>
                     </TotalSummary>
                   </WorkerDetailList>
@@ -486,7 +486,7 @@ const AggregationPage: React.FC = () => {
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>금액:</DetailLabel>
-                    <DetailValue $highlight>{selectedItem.amount.toLocaleString()}원</DetailValue>
+                    <DetailValue $highlight>{(Number(selectedItem.amount) || 0).toLocaleString()}원</DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>내용:</DetailLabel>
