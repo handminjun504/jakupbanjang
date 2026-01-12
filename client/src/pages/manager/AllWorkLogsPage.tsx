@@ -22,6 +22,7 @@ const AllWorkLogsPage: React.FC = () => {
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedGroupedWorkLog, setSelectedGroupedWorkLog] = useState<GroupedWorkLog | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sitesLoading, setSitesLoading] = useState(true); // 현장 목록 로딩 상태
   const [error, setError] = useState('');
   
   // 필터
@@ -39,16 +40,19 @@ const AllWorkLogsPage: React.FC = () => {
     const loadInitialData = async () => {
       try {
         setLoading(true);
+        setSitesLoading(true);
         const [sitesData, workLogsData] = await Promise.all([
           getSites(),
           getAllWorkLogs({})
         ]);
         setSites(sitesData);
+        setSitesLoading(false); // 현장 목록 로딩 완료
         setWorkLogs(workLogsData);
         groupWorkLogsByDateSiteCreator(workLogsData);
         setError('');
       } catch (err: any) {
         setError(err.message || '데이터를 불러오는데 실패했습니다.');
+        setSitesLoading(false);
       } finally {
         setLoading(false);
       }
@@ -177,8 +181,11 @@ const AllWorkLogsPage: React.FC = () => {
           <StyledSelect
             value={filterSiteId}
             onChange={(e) => setFilterSiteId(e.target.value)}
+            disabled={sitesLoading}
           >
-            <option value="">전체 현장</option>
+            <option value="">
+              {sitesLoading ? '현장 목록 로딩 중...' : '전체 현장'}
+            </option>
             {sites.map((site) => (
               <option key={site.id} value={site.id}>
                 {site.name}
