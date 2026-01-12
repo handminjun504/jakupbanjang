@@ -69,7 +69,7 @@ const getButtonColors = (variant: string) => {
       return {
         bg: theme.colors.accent,
         text: theme.colors.text.primary,
-        hover: theme.colors.accentHover || '#f0c14b',
+        hover: '#f0c14b',
       };
   }
 };
