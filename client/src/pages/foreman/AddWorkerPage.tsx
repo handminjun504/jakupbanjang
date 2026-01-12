@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { createWorker } from '../../api/foreman';
 import { StyledInput, StyledTextarea } from '../../components/common/StyledInput';
-import StyledButton from '../../components/common/StyledButton';
+import ButtonWithLoader from '../../components/common/ButtonWithLoader';
+import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Header from '../../components/common/Header';
 import { theme } from '../../styles/theme';
 
@@ -142,6 +143,8 @@ const AddWorkerPage: React.FC = () => {
 
   return (
     <Container>
+      {loading && <LoadingOverlay message="근무자 등록 중..." />}
+      
       <Header />
       
       <Content>
@@ -226,21 +229,23 @@ const AddWorkerPage: React.FC = () => {
           {success && <SuccessMessage>{success}</SuccessMessage>}
 
           <ButtonGroup>
-            <StyledButton
+            <ButtonWithLoader
               type="button"
               variant="secondary"
               onClick={handleCancel}
               disabled={loading}
+              loading={false}
             >
               취소
-            </StyledButton>
-            <StyledButton
+            </ButtonWithLoader>
+            <ButtonWithLoader
               type="submit"
               variant="primary"
               disabled={loading}
+              loading={loading}
             >
-              {loading ? '등록 중...' : '등록'}
-            </StyledButton>
+              등록
+            </ButtonWithLoader>
           </ButtonGroup>
         </Form>
       </Content>

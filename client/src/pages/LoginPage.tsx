@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledInput } from '../components/common/StyledInput';
-import StyledButton from '../components/common/StyledButton';
+import ButtonWithLoader from '../components/common/ButtonWithLoader';
+import LoadingOverlay from '../components/common/LoadingOverlay';
 import { theme } from '../styles/theme';
 import { login } from '../api/auth';
 
@@ -137,9 +138,9 @@ const LoginPage: React.FC = () => {
 
               {error && <ErrorMessage>{error}</ErrorMessage>}
 
-              <StyledButton type="submit" disabled={loading} fullWidth>
-                {loading ? '처리 중...' : '로그인'}
-              </StyledButton>
+              <ButtonWithLoader type="submit" loading={loading} fullWidth>
+                로그인
+              </ButtonWithLoader>
             </Form>
           )}
 
@@ -148,6 +149,8 @@ const LoginPage: React.FC = () => {
           </LinkText>
         </FormWrapper>
       </Content>
+      
+      {loading && <LoadingOverlay message="로그인 중..." />}
     </Container>
   );
 };
