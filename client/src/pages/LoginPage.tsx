@@ -155,7 +155,7 @@ const LoginPage: React.FC = () => {
 
 const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%);
+  background-color: #e3f2fd;
 `;
 
 const HeaderSection = styled.div`
@@ -169,13 +169,12 @@ const HeaderSection = styled.div`
 `;
 
 const Logo = styled.div`
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  background-color: #2196f3;
   color: white;
   padding: 8px 24px;
   border-radius: ${theme.borderRadius.round};
   font-weight: 700;
   font-size: 16px;
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
 `;
 
 const Content = styled.div`
