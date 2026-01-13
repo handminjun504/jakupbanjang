@@ -252,7 +252,7 @@ const AggregationPage: React.FC = () => {
               <CardIcon>💰</CardIcon>
               <CardContent>
                 <CardLabel>총 금액</CardLabel>
-                <CardValue $color="#667eea">{aggregationData.summary.totalAmount.toLocaleString()}원</CardValue>
+                <CardValue $color="#667eea">{Number(aggregationData.summary.totalAmount).toLocaleString()}원</CardValue>
                 <CardSubtext>{aggregationData.summary.totalCount}건</CardSubtext>
               </CardContent>
             </SummaryCard>
@@ -261,7 +261,7 @@ const AggregationPage: React.FC = () => {
               <CardIcon>📋</CardIcon>
               <CardContent>
                 <CardLabel>작업일지</CardLabel>
-                <CardValue $color="#2196f3">{aggregationData.summary.workLogAmount.toLocaleString()}원</CardValue>
+                <CardValue $color="#2196f3">{Number(aggregationData.summary.workLogAmount).toLocaleString()}원</CardValue>
                 <CardSubtext>{aggregationData.summary.workLogCount}건</CardSubtext>
               </CardContent>
             </SummaryCard>
@@ -270,7 +270,7 @@ const AggregationPage: React.FC = () => {
               <CardIcon>💸</CardIcon>
               <CardContent>
                 <CardLabel>지출결의</CardLabel>
-                <CardValue $color="#f57c00">{aggregationData.summary.expenseAmount.toLocaleString()}원</CardValue>
+                <CardValue $color="#f57c00">{Number(aggregationData.summary.expenseAmount).toLocaleString()}원</CardValue>
                 <CardSubtext>{aggregationData.summary.expenseCount}건</CardSubtext>
               </CardContent>
             </SummaryCard>
@@ -279,7 +279,7 @@ const AggregationPage: React.FC = () => {
               <CardIcon>✅</CardIcon>
               <CardContent>
                 <CardLabel>지급완료</CardLabel>
-                <CardValue $color="#4caf50">{aggregationData.summary.paidAmount.toLocaleString()}원</CardValue>
+                <CardValue $color="#4caf50">{Number(aggregationData.summary.paidAmount).toLocaleString()}원</CardValue>
               </CardContent>
             </SummaryCard>
 
@@ -287,7 +287,7 @@ const AggregationPage: React.FC = () => {
               <CardIcon>⏳</CardIcon>
               <CardContent>
                 <CardLabel>미지급</CardLabel>
-                <CardValue $color="#ff9800">{aggregationData.summary.unpaidAmount.toLocaleString()}원</CardValue>
+                <CardValue $color="#ff9800">{Number(aggregationData.summary.unpaidAmount).toLocaleString()}원</CardValue>
               </CardContent>
             </SummaryCard>
           </SummarySection>
@@ -345,7 +345,7 @@ const AggregationPage: React.FC = () => {
                           }
                         </Td>
                         <Td>
-                          <AmountText>{(item.totalAmount || item.amount || 0).toLocaleString()}원</AmountText>
+                          <AmountText>{Number(item.totalAmount || item.amount || 0).toLocaleString()}원</AmountText>
                         </Td>
                         <Td>
                           <StatusBadge $status={item.paymentStatus || item.status}>
@@ -417,11 +417,11 @@ const AggregationPage: React.FC = () => {
                           </WorkerDetailRow>
                           <WorkerDetailRow>
                             <WorkerDetailLabel>단가:</WorkerDetailLabel>
-                            <WorkerDetailValue>{(item.dailyRate || 0).toLocaleString()}원</WorkerDetailValue>
+                            <WorkerDetailValue>{Number(item.dailyRate || 0).toLocaleString()}원</WorkerDetailValue>
                           </WorkerDetailRow>
                           <WorkerDetailRow>
                             <WorkerDetailLabel>금액:</WorkerDetailLabel>
-                            <WorkerDetailValue $highlight>{(item.amount || 0).toLocaleString()}원</WorkerDetailValue>
+                            <WorkerDetailValue $highlight>{Number(item.amount || 0).toLocaleString()}원</WorkerDetailValue>
                           </WorkerDetailRow>
                         </WorkerDetailBody>
                       </WorkerDetailCard>
@@ -434,7 +434,7 @@ const AggregationPage: React.FC = () => {
                       </TotalRow>
                       <TotalRow>
                         <TotalLabel>총 금액:</TotalLabel>
-                        <TotalValue $highlight>{(selectedItem.totalAmount || 0).toLocaleString()}원</TotalValue>
+                        <TotalValue $highlight>{Number(selectedItem.totalAmount || 0).toLocaleString()}원</TotalValue>
                       </TotalRow>
                     </TotalSummary>
                   </WorkerDetailList>
@@ -476,7 +476,7 @@ const AggregationPage: React.FC = () => {
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>금액:</DetailLabel>
-                    <DetailValue $highlight>{selectedItem.amount.toLocaleString()}원</DetailValue>
+                    <DetailValue $highlight>{Number(selectedItem.amount).toLocaleString()}원</DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>내용:</DetailLabel>
