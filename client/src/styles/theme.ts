@@ -16,7 +16,6 @@ export const theme = {
     
     // 강조색 (주요 버튼, 활성 탭 등)
     accent: '#FFD644',
-    accentHover: '#f0c14b',
     
     // 테두리/구분선
     border: '#DEE2E6',

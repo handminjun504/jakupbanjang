@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { StyledInput } from '../components/common/StyledInput';
-import ButtonWithLoader from '../components/common/ButtonWithLoader';
-import LoadingOverlay from '../components/common/LoadingOverlay';
+import StyledButton from '../components/common/StyledButton';
 import { theme } from '../styles/theme';
 import { login } from '../api/auth';
 
@@ -72,35 +71,9 @@ const LoginPage: React.FC = () => {
         navigate('/foreman/select-site');
       }
     } catch (err: any) {
-      console.error('로그인 에러:', err);
-      
-      // 에러 메시지 처리
-      let errorMessage = '로그인에 실패했습니다.';
-      
-      if (err.message) {
-        errorMessage = err.message;
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.error) {
-        errorMessage = err.error;
-      }
-      
-      // 사용자 친화적인 메시지로 변환
-      if (errorMessage.includes('올바르지 않습니다') || 
-          errorMessage.includes('not found') || 
-          errorMessage.includes('invalid')) {
-        errorMessage = '아이디 또는 비밀번호가 올바르지 않습니다.';
-      } else if (errorMessage.includes('Too many')) {
-        errorMessage = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.';
-      }
-      
-      setError(errorMessage);
-      setLoading(false); // 에러 발생 시 로딩 해제
-      
-      // 비밀번호 입력란 초기화 (보안)
-      setPassword('');
-      
-      // ⭐ 중요: userType은 유지 (로그인 유형 선택 화면으로 돌아가지 않음)
+      setError(err.message || '로그인에 실패했습니다.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,6 +81,7 @@ const LoginPage: React.FC = () => {
     <Container>
       <HeaderSection>
         <Logo>JAKUP</Logo>
+        <PageBadge>로그인</PageBadge>
       </HeaderSection>
       
       <Content>
@@ -164,9 +138,9 @@ const LoginPage: React.FC = () => {
 
               {error && <ErrorMessage>{error}</ErrorMessage>}
 
-              <ButtonWithLoader type="submit" loading={loading} fullWidth>
-                로그인
-              </ButtonWithLoader>
+              <StyledButton type="submit" disabled={loading} fullWidth>
+                {loading ? '처리 중...' : '로그인'}
+              </StyledButton>
             </Form>
           )}
 
@@ -175,33 +149,33 @@ const LoginPage: React.FC = () => {
           </LinkText>
         </FormWrapper>
       </Content>
-      
-      {loading && <LoadingOverlay message="로그인 중..." />}
     </Container>
   );
 };
 
 const Container = styled.div`
   min-height: 100vh;
-  background-color: ${theme.colors.background.primary};
+  background: linear-gradient(135deg, #e3f2fd 0%, #f5f5f5 100%);
 `;
 
 const HeaderSection = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  border-bottom: 1px solid ${theme.colors.border};
+  background-color: white;
+  border-bottom: 2px solid #2196f3;
   height: 56px;
 `;
 
 const Logo = styled.div`
-  background-color: ${theme.colors.accent};
-  color: ${theme.colors.text.primary};
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
   padding: 8px 24px;
   border-radius: ${theme.borderRadius.round};
   font-weight: 700;
   font-size: 16px;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
 `;
 
 const Content = styled.div`
@@ -225,9 +199,17 @@ const FormWrapper = styled.div`
 const PageTitle = styled.h1`
   font-size: ${theme.typography.pageTitle.fontSize};
   font-weight: ${theme.typography.pageTitle.fontWeight};
-  color: ${theme.colors.text.primary};
+  color: #1976d2;
   margin-bottom: ${theme.spacing.xl};
   text-align: center;
+  position: relative;
+  
+  &:before {
+    content: '🔐 ';
+    font-size: 32px;
+    display: block;
+    margin-bottom: 12px;
+  }
 `;
 
 const Form = styled.form`
@@ -341,6 +323,15 @@ const StyledLink = styled(Link)`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const PageBadge = styled.div`
+  background-color: #2196f3;
+  color: white;
+  padding: 6px 16px;
+  border-radius: ${theme.borderRadius.round};
+  font-size: 14px;
+  font-weight: 600;
 `;
 
 export default LoginPage;

@@ -151,7 +151,7 @@ const EditWorkerPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate('/foreman/workers');
+    navigate('/foreman/site-selection');
   };
 
   if (loading) {

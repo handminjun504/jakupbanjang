@@ -252,7 +252,7 @@ const AddWorkLogPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate('/foreman/worklogs');
+    navigate('/foreman/site-selection');
   };
 
   return (
@@ -277,13 +277,38 @@ const AddWorkLogPage: React.FC = () => {
               <Label htmlFor="workDate">
                 작업일 <Required>*</Required>
               </Label>
-              <StyledInput
-                id="workDate"
-                type="date"
-                value={workDate}
-                onChange={(e) => setWorkDate(e.target.value)}
-                required
-              />
+              <DateControl>
+                <QuickDateButtons>
+                  <QuickDateButton 
+                    type="button"
+                    $active={workDate === new Date().toISOString().split('T')[0]}
+                    onClick={() => setWorkDate(new Date().toISOString().split('T')[0])}
+                  >
+                    오늘
+                  </QuickDateButton>
+                  <QuickDateButton 
+                    type="button"
+                    $active={workDate === new Date(Date.now() - 86400000).toISOString().split('T')[0]}
+                    onClick={() => setWorkDate(new Date(Date.now() - 86400000).toISOString().split('T')[0])}
+                  >
+                    어제
+                  </QuickDateButton>
+                  <QuickDateButton 
+                    type="button"
+                    $active={workDate === new Date(Date.now() - 172800000).toISOString().split('T')[0]}
+                    onClick={() => setWorkDate(new Date(Date.now() - 172800000).toISOString().split('T')[0])}
+                  >
+                    그저께
+                  </QuickDateButton>
+                </QuickDateButtons>
+                <StyledInput
+                  id="workDate"
+                  type="date"
+                  value={workDate}
+                  onChange={(e) => setWorkDate(e.target.value)}
+                  required
+                />
+              </DateControl>
             </FormGroup>
 
             <FormGroup>
@@ -1002,6 +1027,34 @@ const SubmitButton = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+`;
+
+const DateControl = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${theme.spacing.sm};
+`;
+
+const QuickDateButtons = styled.div`
+  display: flex;
+  gap: ${theme.spacing.sm};
+`;
+
+const QuickDateButton = styled.button<{ $active?: boolean }>`
+  flex: 1;
+  padding: 10px 16px;
+  background-color: ${props => props.$active ? theme.colors.accent : 'white'};
+  color: ${props => props.$active ? 'white' : theme.colors.text.primary};
+  border: 1px solid ${props => props.$active ? theme.colors.accent : theme.colors.border};
+  border-radius: ${theme.borderRadius.small};
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: ${props => props.$active ? theme.colors.accent : theme.colors.background.primary};
   }
 `;
 

@@ -883,7 +883,7 @@ const getAggregationData = async (req, res) => {
 
       // 작업일지 집계 계산
       workLogsData.forEach(log => {
-        const amount = (Number(log.dailyRate) || 0) * (Number(log.effort) || 0);
+        const amount = (log.dailyRate || 0) * (log.effort || 0);
         summary.workLogAmount += amount;
         summary.workLogCount++;
         
@@ -945,7 +945,7 @@ const getAggregationData = async (req, res) => {
 
       // 지출결의 집계 계산
       expensesData.forEach(expense => {
-        const amount = Number(expense.amount) || 0; // 명시적으로 Number로 변환
+        const amount = expense.amount || 0;
         summary.expenseAmount += amount;
         summary.expenseCount++;
         
@@ -970,9 +970,9 @@ const getAggregationData = async (req, res) => {
       creator: log.creator,
       worker: log.worker,
       description: log.description,
-      effort: Number(log.effort) || 0,
-      dailyRate: Number(log.dailyRate) || 0,
-      amount: (Number(log.dailyRate) || 0) * (Number(log.effort) || 0),
+      effort: log.effort,
+      dailyRate: log.dailyRate,
+      amount: (log.dailyRate || 0) * (log.effort || 0),
       paymentStatus: log.paymentStatus,
       paymentDate: log.paymentDate,
       createdAt: log.createdAt
@@ -986,7 +986,7 @@ const getAggregationData = async (req, res) => {
       creator: expense.creator,
       title: expense.title,
       content: expense.content,
-      amount: Number(expense.amount) || 0, // 명시적으로 Number로 변환
+      amount: expense.amount,
       paymentStatus: expense.status === 'approved' ? '지급완료' : '미지급',
       status: expense.status,
       createdAt: expense.createdAt

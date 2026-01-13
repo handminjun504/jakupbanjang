@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { getSites } from '../../api/foreman';
 import { useSiteStore } from '../../store/siteStore';
 import { theme } from '../../styles/theme';
-import InlineLoader from '../../components/common/InlineLoader';
 
 interface Site {
   id: number;
@@ -43,30 +42,40 @@ const SiteSelectionPage: React.FC = () => {
     navigate('/foreman/tasks');
   };
 
+  if (loading) {
+    return (
+      <Container>
+        <Card>
+          <LoadingText>현장 목록을 불러오는 중...</LoadingText>
+        </Card>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container>
+        <Card>
+          <ErrorText>{error}</ErrorText>
+          <RetryButton onClick={fetchSites}>다시 시도</RetryButton>
+        </Card>
+      </Container>
+    );
+  }
+
   return (
     <Container>
       <Card>
         <Title>현장 선택</Title>
         <Description>작업할 현장을 선택해주세요</Description>
         
-        {loading ? (
-          // 로딩 중: 레이아웃은 바로 표시하고 인라인 로더만 표시
-          <InlineLoader message="현장 목록을 불러오는 중..." height="300px" />
-        ) : error ? (
-          // 에러 발생
-          <ErrorContainer>
-            <ErrorText>{error}</ErrorText>
-            <RetryButton onClick={fetchSites}>다시 시도</RetryButton>
-          </ErrorContainer>
-        ) : sites.length === 0 ? (
-          // 현장 없음
+        {sites.length === 0 ? (
           <EmptyMessage>
             <EmptyIcon>📋</EmptyIcon>
             <EmptyText>등록된 현장이 없습니다.</EmptyText>
             <EmptySubText>관리자에게 문의하세요.</EmptySubText>
           </EmptyMessage>
         ) : (
-          // 현장 목록 표시
           <SiteList>
             {sites.map((site) => (
               <SiteCard key={site.id} onClick={() => handleSiteSelect(site)}>
@@ -315,12 +324,15 @@ const EmptySubText = styled.p`
   }
 `;
 
-const ErrorContainer = styled.div`
+const LoadingText = styled.p`
   text-align: center;
-  padding: ${theme.spacing.xl} ${theme.spacing.md};
+  font-size: 1rem;
+  color: ${theme.colors.text.secondary};
+  padding: ${theme.spacing.xl};
   
   @media (min-width: ${theme.breakpoints.tablet}) {
-    padding: 3rem 1rem;
+    font-size: 1.125rem;
+    padding: 3rem;
   }
 `;
 

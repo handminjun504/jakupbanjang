@@ -33,18 +33,8 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // 로그인/회원가입 요청이 아닐 때만 리다이렉트
-      // (로그인 실패는 컴포넌트에서 처리)
-      const isAuthRequest = error.config?.url?.includes('/auth/login') || 
-                           error.config?.url?.includes('/auth/signup') ||
-                           error.config?.url?.includes('/auth/refresh');
-      
-      if (!isAuthRequest) {
-        // 인증이 필요한 API 요청 실패 시에만 로그인 페이지로 이동
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
-      }
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

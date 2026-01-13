@@ -30,7 +30,6 @@ const AggregationPage: React.FC = () => {
   const [foremen, setForemen] = useState<any[]>([]);
   const [workers, setWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true); // 초기 데이터 로딩 상태
   const [error, setError] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [displayData, setDisplayData] = useState<any[]>([]);
@@ -64,7 +63,6 @@ const AggregationPage: React.FC = () => {
 
   const fetchInitialData = async () => {
     try {
-      setInitialLoading(true);
       const [sitesData, foremenData] = await Promise.all([
         getSites(),
         getAllWorkers()
@@ -73,8 +71,6 @@ const AggregationPage: React.FC = () => {
       setForemen(foremenData);
     } catch (err) {
       console.error('Failed to load initial data:', err);
-    } finally {
-      setInitialLoading(false);
     }
   };
 
@@ -116,8 +112,8 @@ const AggregationPage: React.FC = () => {
       }
       
       workLogGroups[key].items.push(item);
-      workLogGroups[key].totalEffort += Number(item.effort) || 0;
-      workLogGroups[key].totalAmount += Number(item.amount) || 0;
+      workLogGroups[key].totalEffort += item.effort || 0;
+      workLogGroups[key].totalAmount += item.amount || 0;
       
       // 지급완료가 하나라도 있으면 지급완료로 표시
       if (item.paymentStatus === '지급완료') {
@@ -201,11 +197,8 @@ const AggregationPage: React.FC = () => {
             <StyledSelect
               value={filters.siteId || ''}
               onChange={(e) => handleFilterChange('siteId', e.target.value ? parseInt(e.target.value) : undefined)}
-              disabled={initialLoading}
             >
-              <option value="">
-                {initialLoading ? '현장 목록 로딩 중...' : '전체 현장'}
-              </option>
+              <option value="">전체 현장</option>
               {sites.map(site => (
                 <option key={site.id} value={site.id}>{site.name}</option>
               ))}
@@ -217,11 +210,8 @@ const AggregationPage: React.FC = () => {
             <StyledSelect
               value={filters.creatorId || ''}
               onChange={(e) => handleFilterChange('creatorId', e.target.value ? parseInt(e.target.value) : undefined)}
-              disabled={initialLoading}
             >
-              <option value="">
-                {initialLoading ? '반장 목록 로딩 중...' : '전체 반장'}
-              </option>
+              <option value="">전체 반장</option>
               {foremen.map(foreman => (
                 <option key={foreman.id} value={foreman.id}>
                   {foreman.name || foreman.phone || foreman.email}
@@ -355,7 +345,7 @@ const AggregationPage: React.FC = () => {
                           }
                         </Td>
                         <Td>
-                          <AmountText>{(Number(item.totalAmount) || Number(item.amount) || 0).toLocaleString()}원</AmountText>
+                          <AmountText>{(item.totalAmount || item.amount || 0).toLocaleString()}원</AmountText>
                         </Td>
                         <Td>
                           <StatusBadge $status={item.paymentStatus || item.status}>
@@ -444,7 +434,7 @@ const AggregationPage: React.FC = () => {
                       </TotalRow>
                       <TotalRow>
                         <TotalLabel>총 금액:</TotalLabel>
-                        <TotalValue $highlight>{(Number(selectedItem.totalAmount) || 0).toLocaleString()}원</TotalValue>
+                        <TotalValue $highlight>{(selectedItem.totalAmount || 0).toLocaleString()}원</TotalValue>
                       </TotalRow>
                     </TotalSummary>
                   </WorkerDetailList>
@@ -486,7 +476,7 @@ const AggregationPage: React.FC = () => {
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>금액:</DetailLabel>
-                    <DetailValue $highlight>{(Number(selectedItem.amount) || 0).toLocaleString()}원</DetailValue>
+                    <DetailValue $highlight>{selectedItem.amount.toLocaleString()}원</DetailValue>
                   </DetailRow>
                   <DetailRow>
                     <DetailLabel>내용:</DetailLabel>

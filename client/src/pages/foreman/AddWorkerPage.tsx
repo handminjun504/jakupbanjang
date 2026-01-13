@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { createWorker } from '../../api/foreman';
 import { StyledInput, StyledTextarea } from '../../components/common/StyledInput';
-import ButtonWithLoader from '../../components/common/ButtonWithLoader';
-import LoadingOverlay from '../../components/common/LoadingOverlay';
+import StyledButton from '../../components/common/StyledButton';
 import Header from '../../components/common/Header';
 import { theme } from '../../styles/theme';
 
@@ -138,13 +137,11 @@ const AddWorkerPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate('/foreman/workers');
+    navigate('/foreman/site-selection');
   };
 
   return (
     <Container>
-      {loading && <LoadingOverlay message="근무자 등록 중..." />}
-      
       <Header />
       
       <Content>
@@ -221,7 +218,7 @@ const AddWorkerPage: React.FC = () => {
               placeholder="특이사항이나 메모를 입력하세요"
               value={formData.remarks}
               onChange={handleChange}
-              rows={3}
+              rows={4}
             />
           </FormGroup>
 
@@ -229,23 +226,21 @@ const AddWorkerPage: React.FC = () => {
           {success && <SuccessMessage>{success}</SuccessMessage>}
 
           <ButtonGroup>
-            <ButtonWithLoader
+            <StyledButton
               type="button"
               variant="secondary"
               onClick={handleCancel}
               disabled={loading}
-              loading={false}
             >
               취소
-            </ButtonWithLoader>
-            <ButtonWithLoader
+            </StyledButton>
+            <StyledButton
               type="submit"
               variant="primary"
               disabled={loading}
-              loading={loading}
             >
-              등록
-            </ButtonWithLoader>
+              {loading ? '등록 중...' : '등록'}
+            </StyledButton>
           </ButtonGroup>
         </Form>
       </Content>
@@ -298,59 +293,36 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
-  padding: ${theme.spacing.sm} ${theme.spacing.md};
+  padding: ${theme.spacing.md};
   max-width: 600px;
   margin: 0 auto;
-  
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    padding: ${theme.spacing.md};
-  }
 `;
 
 const PageTitle = styled.h1`
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   color: ${theme.colors.text.primary};
-  margin-bottom: ${theme.spacing.md};
-  margin-top: ${theme.spacing.sm};
+  margin-bottom: ${theme.spacing.lg};
   text-align: center;
-  
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    font-size: 24px;
-    margin-bottom: ${theme.spacing.lg};
-  }
 `;
 
 const Form = styled.form`
   background-color: ${theme.colors.background.secondary};
-  padding: ${theme.spacing.md};
+  padding: ${theme.spacing.lg};
   border-radius: ${theme.borderRadius.medium};
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    padding: ${theme.spacing.lg};
-  }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: ${theme.spacing.md};
-  
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    margin-bottom: ${theme.spacing.lg};
-  }
+  margin-bottom: ${theme.spacing.lg};
 `;
 
 const Label = styled.label`
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: ${theme.colors.text.primary};
-  margin-bottom: 4px;
-  
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    font-size: 14px;
-    margin-bottom: ${theme.spacing.xs};
-  }
+  margin-bottom: ${theme.spacing.xs};
 `;
 
 const Required = styled.span`
@@ -365,13 +337,8 @@ const HelpText = styled.p`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: ${theme.spacing.sm};
-  margin-top: ${theme.spacing.md};
-  
-  @media (min-width: ${theme.breakpoints.tablet}) {
-    gap: ${theme.spacing.md};
-    margin-top: ${theme.spacing.xl};
-  }
+  gap: ${theme.spacing.md};
+  margin-top: ${theme.spacing.xl};
 `;
 
 const ErrorMessage = styled.div`
