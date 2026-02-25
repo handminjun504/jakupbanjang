@@ -150,29 +150,14 @@ const initializeStorage = async () => {
   }
 };
 
-// 데이터베이스 동기화 및 서버 시작
-// Supabase 사용 시: 테이블이 이미 생성되어 있으므로 sync 비활성화
-// 마이그레이션으로 스키마 관리
-const startServer = async () => {
-  try {
-    // Supabase에 이미 테이블이 있으므로 sync 건너뛰기
-    logger.info('✅ Using existing database schema (Supabase)');
-    
-    // Storage 버킷 초기화
-    await initializeStorage();
-    
-    app.listen(PORT, () => {
-      logger.info(`🚀 Server is running on port ${PORT}`);
-      logger.info(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`🔗 Database: Supabase PostgreSQL`);
-      logger.info(`📁 Storage: Supabase Storage`);
-      logger.info(`✨ Server is ready to accept requests!`);
-    });
-  } catch (err) {
-    logger.error('❌ Failed to start server:', err);
-    process.exit(1);
-  }
-};
+// 서버 시작 - 포트 바인딩 우선, 나머지는 백그라운드 초기화
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
 
-startServer();
+  // 스토리지 버킷 초기화 (백그라운드, 실패해도 서버는 계속 실행)
+  initializeStorage().catch(err => {
+    console.error('❌ Storage init failed (non-fatal):', err.message);
+  });
+});
 

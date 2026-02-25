@@ -52,23 +52,21 @@ const sequelize = new Sequelize(finalDatabaseUrl, {
   },
 });
 
-const connectWithRetry = async (retries = 5, delay = 3000) => {
+const connectWithRetry = async (retries = 3, delay = 2000) => {
   for (let i = 0; i < retries; i++) {
     try {
       await sequelize.authenticate();
       console.log('✅ Database connection established successfully.');
-      console.log('📦 Using Supabase PostgreSQL');
       return;
     } catch (err) {
       console.error(`❌ DB connection attempt ${i + 1}/${retries} failed:`, err.message);
       if (i < retries - 1) {
-        console.log(`⏳ Retrying in ${delay / 1000}s...`);
         await new Promise(r => setTimeout(r, delay));
-        delay *= 1.5;
+        delay *= 2;
       }
     }
   }
-  console.error('❌ All DB connection attempts failed. Server will start but DB may be unavailable.');
+  console.error('❌ All DB connection attempts failed. DB may be unavailable.');
 };
 
 if (process.env.NODE_ENV !== 'test') {
