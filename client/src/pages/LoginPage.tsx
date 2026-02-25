@@ -120,6 +120,7 @@ const LoginPage: React.FC = () => {
                   placeholder={userType === 'foreman' ? '010-1234-5678' : 'email@example.com'}
                   value={identifier}
                   onChange={handleIdentifierChange}
+                  autoComplete={userType === 'foreman' ? 'tel' : 'email'}
                   required
                 />
               </FormGroup>
@@ -132,6 +133,7 @@ const LoginPage: React.FC = () => {
                   placeholder="비밀번호를 입력하세요"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   required
                 />
               </FormGroup>

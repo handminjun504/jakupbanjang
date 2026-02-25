@@ -128,6 +128,7 @@ const SignupPage: React.FC = () => {
                       placeholder="이름을 입력하세요"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
+                      autoComplete="name"
                       required
                     />
                   </FormGroup>
@@ -139,6 +140,7 @@ const SignupPage: React.FC = () => {
                       placeholder="010-1234-5678"
                       value={phone}
                       onChange={handlePhoneChange}
+                      autoComplete="tel"
                       required
                     />
                   </FormGroup>
@@ -150,6 +152,7 @@ const SignupPage: React.FC = () => {
                       placeholder="비밀번호를 입력하세요"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
                       required
                     />
                   </FormGroup>
@@ -161,6 +164,7 @@ const SignupPage: React.FC = () => {
                       placeholder="회사 코드를 입력하세요"
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                      autoComplete="off"
                       required
                     />
                   </FormGroup>
@@ -176,6 +180,7 @@ const SignupPage: React.FC = () => {
                       placeholder="이메일을 입력하세요"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
                       required
                     />
                   </FormGroup>
@@ -187,6 +192,7 @@ const SignupPage: React.FC = () => {
                       placeholder="기업명을 입력하세요"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
+                      autoComplete="organization"
                       required
                     />
                   </FormGroup>
@@ -198,6 +204,7 @@ const SignupPage: React.FC = () => {
                       placeholder="비밀번호를 입력하세요"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
                       required
                     />
                   </FormGroup>
