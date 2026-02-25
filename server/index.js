@@ -25,6 +25,7 @@ setupAssociations();
 const allowedOrigins = [
   'http://localhost:3000',  // 로컬 개발
   'http://localhost:3001',  // 로컬 개발 (다른 포트)
+  'https://jakupbanjang-fr.vercel.app',  // Vercel 프로덕션
 ];
 
 // 프로덕션 환경이면 Vercel URL 추가
@@ -38,17 +39,20 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
     // Vercel preview 배포 지원 (vercel.app으로 끝나는 도메인 모두 허용)
-    if (origin.endsWith('.vercel.app')) {
+    if (origin && origin.includes('.vercel.app')) {
       return callback(null, true);
     }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      logger.warn(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,  // 쿠키 및 인증 정보 허용
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
 
