@@ -55,11 +55,9 @@ if (process.env.NODE_ENV === 'production' && process.env.CLIENT_URL) {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // origin이 undefined인 경우 (같은 도메인, Postman 등) 허용
     if (!origin) return callback(null, true);
     
-    // Vercel preview 배포 지원 (vercel.app으로 끝나는 도메인 모두 허용)
-    if (origin && origin.includes('.vercel.app')) {
+    if (origin.includes('.vercel.app') || origin.includes('.trycloudflare.com')) {
       return callback(null, true);
     }
     

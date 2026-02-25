@@ -10,6 +10,7 @@ const ExpenseManagementPage: React.FC = () => {
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchExpenses();
@@ -36,12 +37,15 @@ const ExpenseManagementPage: React.FC = () => {
     }
 
     try {
+      setActionLoading(true);
       await approveExpense(expense.id);
       alert('지출결의가 승인되었습니다.');
       fetchExpenses();
     } catch (error: any) {
       console.error('승인 실패:', error);
       alert(error.message || '승인에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -66,6 +70,7 @@ const ExpenseManagementPage: React.FC = () => {
     }
 
     try {
+      setActionLoading(true);
       await rejectExpense(selectedExpense.id, rejectReason.trim());
       alert('지출결의가 거절되었습니다.');
       setShowRejectModal(false);
@@ -75,6 +80,8 @@ const ExpenseManagementPage: React.FC = () => {
     } catch (error: any) {
       console.error('거절 실패:', error);
       alert(error.message || '거절에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -165,12 +172,14 @@ const ExpenseManagementPage: React.FC = () => {
                               <SmallButton
                                 $variant="approve"
                                 onClick={() => handleApprove(expense)}
+                                disabled={actionLoading}
                               >
-                                승인
+                                {actionLoading ? '처리중...' : '승인'}
                               </SmallButton>
                               <SmallButton
                                 $variant="reject"
                                 onClick={() => handleRejectClick(expense)}
+                                disabled={actionLoading}
                               >
                                 거절
                               </SmallButton>
@@ -285,14 +294,16 @@ const ExpenseManagementPage: React.FC = () => {
                 <ModalButton
                   $variant="secondary"
                   onClick={handleRejectModalClose}
+                  disabled={actionLoading}
                 >
                   취소
                 </ModalButton>
                 <ModalButton
                   $variant="primary"
                   onClick={handleRejectSubmit}
+                  disabled={actionLoading}
                 >
-                  거절하기
+                  {actionLoading ? '처리중...' : '거절하기'}
                 </ModalButton>
               </ModalFooter>
             </ModalContent>
@@ -435,8 +446,13 @@ const SmallButton = styled.button<{ $variant: 'approve' | 'reject' | 'detail' }>
   transition: opacity 0.2s;
   white-space: nowrap;
 
-  &:hover {
+  &:hover:not(:disabled) {
     opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 

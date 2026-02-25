@@ -39,7 +39,7 @@ const SiteSelectionPage: React.FC = () => {
 
   const handleSiteSelect = (site: Site) => {
     setSelectedSite(site.id, site);
-    navigate('/foreman/tasks');
+    navigate('/foreman/worklogs');
   };
 
   if (loading) {

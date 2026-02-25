@@ -33,6 +33,7 @@ const AllWorkersListPage: React.FC = () => {
   const [error, setError] = useState('');
   const [editingForemanId, setEditingForemanId] = useState<number | null>(null);
   const [editDailyRate, setEditDailyRate] = useState('');
+  const [savingRate, setSavingRate] = useState(false);
 
   useEffect(() => {
     fetchForemen();
@@ -88,17 +89,19 @@ const AllWorkersListPage: React.FC = () => {
         return;
       }
 
+      setSavingRate(true);
       await apiClient.put(`/admin/foremen/${foremanId}/dailyrate`, {
         dailyRate: numericRate
       });
 
-      // 목록 새로고침
       await fetchForemen();
       setEditingForemanId(null);
       setEditDailyRate('');
       alert('단가가 수정되었습니다.');
     } catch (err: any) {
       alert(err.response?.data?.message || '단가 수정에 실패했습니다.');
+    } finally {
+      setSavingRate(false);
     }
   };
 
@@ -177,10 +180,10 @@ const AllWorkersListPage: React.FC = () => {
                           placeholder="단가 입력"
                         />
                         <DailyRateUnit>원</DailyRateUnit>
-                        <SaveButton onClick={() => handleSaveDailyRate(foreman.id)}>
-                          저장
+                        <SaveButton onClick={() => handleSaveDailyRate(foreman.id)} disabled={savingRate}>
+                          {savingRate ? '저장중...' : '저장'}
                         </SaveButton>
-                        <CancelButton onClick={handleCancelEdit}>
+                        <CancelButton onClick={handleCancelEdit} disabled={savingRate}>
                           취소
                         </CancelButton>
                       </DailyRateEditRow>

@@ -26,9 +26,9 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredRole }) =
         return <Navigate to="/manager/dashboard" replace />;
       }
       
-      // 작업반장이 관리자 페이지에 접근하려 하면 작업반장 페이지로
+      // 작업반장이 관리자 페이지에 접근하려 하면 현장 선택으로
       if (userRole === 'foreman' && requiredRole === 'manager') {
-        return <Navigate to="/foreman/tasks" replace />;
+        return <Navigate to="/foreman/select-site" replace />;
       }
 
       // 그 외의 경우 홈으로

@@ -78,7 +78,11 @@ const SignupPage: React.FC = () => {
         setTimeout(() => navigate('/login'), 5000);
       }
     } catch (err: any) {
-      setError(err.message || '회원가입에 실패했습니다.');
+      if (err.errors && Array.isArray(err.errors)) {
+        setError(err.errors.map((e: any) => e.message).join('\n'));
+      } else {
+        setError(err.message || '회원가입에 실패했습니다.');
+      }
     } finally {
       setLoading(false);
     }

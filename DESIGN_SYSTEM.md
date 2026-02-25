@@ -86,7 +86,7 @@ font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", "S
 - 라벨 영역: 연한 회색 배경 (#F1F3F5)
 - 값 영역: 흰색 배경
 - 명확한 구분을 위해 배경색 차이 활용
-
+ㅈ
 ## 페이지 구조
 
 ### TaskListPage (근무자 리스트)

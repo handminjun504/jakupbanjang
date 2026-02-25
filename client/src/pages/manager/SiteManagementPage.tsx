@@ -22,6 +22,7 @@ const SiteManagementPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingSite, setEditingSite] = useState<Site | null>(null);
   const [selectedForemenIds, setSelectedForemenIds] = useState<number[]>([]);
+  const [saving, setSaving] = useState(false);
   
   // 새 현장 생성 폼
   const [newSite, setNewSite] = useState<SiteFormData>({
@@ -70,25 +71,22 @@ const SiteManagementPage: React.FC = () => {
     }
 
     try {
+      setSaving(true);
       let siteId: number;
       
       if (editingSite) {
-        // 수정
         await updateSite(editingSite.id, newSite);
         siteId = editingSite.id;
         toast.success('현장이 수정되었습니다!');
       } else {
-        // 생성
         const created = await createSite(newSite);
         siteId = created.id;
         toast.success('현장이 생성되었습니다!');
       }
 
-      // 작업반장 할당
       if (selectedForemenIds.length > 0) {
         await assignForemenToSite(siteId, selectedForemenIds);
       } else {
-        // 작업반장이 선택되지 않았으면 기존 할당 모두 제거
         await assignForemenToSite(siteId, []);
       }
 
@@ -96,6 +94,8 @@ const SiteManagementPage: React.FC = () => {
       fetchSites();
     } catch (err: any) {
       toast.error(err.message || '현장 저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -377,11 +377,11 @@ const SiteManagementPage: React.FC = () => {
             </FormGroup>
 
             <ButtonGroup>
-              <StyledButton variant="secondary" onClick={handleCloseModal}>
+              <StyledButton variant="secondary" onClick={handleCloseModal} disabled={saving}>
                 취소
               </StyledButton>
-              <StyledButton onClick={handleCreateSite}>
-                {editingSite ? '수정' : '생성'}
+              <StyledButton onClick={handleCreateSite} disabled={saving}>
+                {saving ? '저장 중...' : (editingSite ? '수정' : '생성')}
               </StyledButton>
             </ButtonGroup>
           </ModalContent>
