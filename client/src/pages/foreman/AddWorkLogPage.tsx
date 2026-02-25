@@ -725,7 +725,7 @@ const WorkerCardName = styled.div`
   font-weight: 700;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 15px;
   }
 `;
@@ -749,7 +749,7 @@ const InputRow = styled.div`
   display: flex;
   gap: ${theme.spacing.md};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     flex-direction: column;
     gap: ${theme.spacing.sm};
   }
@@ -787,7 +787,7 @@ const WorkerInput = styled(StyledInput)`
   font-weight: 600;
   padding: 12px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 14px;
     padding: 10px;
   }
@@ -803,7 +803,7 @@ const InputUnitText = styled.span`
   background-color: ${theme.colors.background.primary};
   padding-left: 4px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     right: 10px;
     font-size: 12px;
   }
@@ -824,7 +824,7 @@ const AmountLabel = styled.span`
   font-weight: 700;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 13px;
   }
 `;
@@ -834,7 +834,7 @@ const AmountDisplay = styled.span`
   font-weight: 800;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 16px;
   }
 `;
@@ -850,7 +850,7 @@ const TotalAmountSection = styled.div`
   border: 2px solid ${theme.colors.accent};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     flex-direction: column;
     gap: ${theme.spacing.sm};
     text-align: center;
@@ -868,7 +868,7 @@ const TotalAmountValue = styled.span`
   font-weight: 800;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 24px;
   }
 `;

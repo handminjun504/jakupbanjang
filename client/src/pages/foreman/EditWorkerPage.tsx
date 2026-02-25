@@ -43,6 +43,7 @@ const EditWorkerPage: React.FC = () => {
 
   useEffect(() => {
     fetchWorkerData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workerId]);
 
   const fetchWorkerData = async () => {

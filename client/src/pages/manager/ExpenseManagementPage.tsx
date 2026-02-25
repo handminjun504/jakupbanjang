@@ -13,6 +13,7 @@ const ExpenseManagementPage: React.FC = () => {
 
   useEffect(() => {
     fetchExpenses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterStatus]);
 
   const fetchExpenses = async () => {

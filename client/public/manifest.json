@@ -1,0 +1,32 @@
+{
+  "short_name": "작업반장",
+  "name": "작업반장 - 건설현장 관리",
+  "description": "건설현장 작업일지, 근무자 관리, 지출결의를 한곳에서",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#FFD644",
+  "background_color": "#FFFFFF",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["business", "productivity"]
+}

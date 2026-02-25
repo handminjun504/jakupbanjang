@@ -1,5 +1,6 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
+const logger = require('../config/logger');
 
 // 작업 생성
 exports.createTask = async (req, res) => {
@@ -47,7 +48,7 @@ exports.createTask = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Create task error:', error);
+    logger.error('Create task error:', error);
     return res.status(500).json({ 
       message: '작업 생성 중 오류가 발생했습니다.',
       error: error.message 
@@ -91,7 +92,7 @@ exports.getAllTasks = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get tasks error:', error);
+    logger.error('Get tasks error:', error);
     return res.status(500).json({ 
       message: '작업 목록 조회 중 오류가 발생했습니다.',
       error: error.message 
@@ -149,7 +150,7 @@ exports.updateTaskStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Update task status error:', error);
+    logger.error('Update task status error:', error);
     return res.status(500).json({ 
       message: '작업 상태 업데이트 중 오류가 발생했습니다.',
       error: error.message 
@@ -189,7 +190,7 @@ exports.deleteTask = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Delete task error:', error);
+    logger.error('Delete task error:', error);
     return res.status(500).json({ 
       message: '작업 삭제 중 오류가 발생했습니다.',
       error: error.message 

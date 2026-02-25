@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Tabs from '../../components/common/Tabs';
-import StyledButton from '../../components/common/StyledButton';
 import { theme } from '../../styles/theme';
 import { getWorkersBySite, deleteWorker } from '../../api/foreman';
 import { maskRRN } from '../../utils/maskRRN';

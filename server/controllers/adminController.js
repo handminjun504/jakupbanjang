@@ -6,6 +6,7 @@ const Expense = require('../models/Expense');
 const Worker = require('../models/Worker');
 const SiteForemanAssignment = require('../models/SiteForemanAssignment');
 const { decryptRRN } = require('../utils/encryption');
+const logger = require('../config/logger');
 
 /**
  * 내 기업 정보 조회
@@ -30,7 +31,7 @@ const getMyCompany = async (req, res) => {
       data: company
     });
   } catch (error) {
-    console.error('Get my company error:', error);
+    logger.error('Get my company error:', error);
     res.status(500).json({
       success: false,
       message: '기업 정보 조회에 실패했습니다.'
@@ -68,7 +69,7 @@ const getSites = async (req, res) => {
       data: sites
     });
   } catch (error) {
-    console.error('Get sites error:', error);
+    logger.error('Get sites error:', error);
     res.status(500).json({
       success: false,
       message: '현장 목록 조회에 실패했습니다.'
@@ -85,7 +86,7 @@ const createSite = async (req, res) => {
     const managerId = req.user.id;
     const companyId = req.user.companyId;
 
-    console.log('🔍 Create site request:', {
+    logger.info('🔍 Create site request:', {
       name,
       address,
       managerId,
@@ -104,7 +105,7 @@ const createSite = async (req, res) => {
     }
 
     if (!managerId || !companyId) {
-      console.error('❌ Missing managerId or companyId');
+      logger.error('❌ Missing managerId or companyId');
       return res.status(400).json({
         success: false,
         message: '사용자 인증 정보가 올바르지 않습니다.'
@@ -121,7 +122,7 @@ const createSite = async (req, res) => {
       status: 'active'
     });
 
-    console.log('✅ Site created successfully:', site.id);
+    logger.info('✅ Site created successfully:', site.id);
 
     res.status(201).json({
       success: true,
@@ -129,8 +130,8 @@ const createSite = async (req, res) => {
       data: site
     });
   } catch (error) {
-    console.error('❌ Create site error:', error);
-    console.error('Error details:', {
+    logger.error('❌ Create site error:', error);
+    logger.error('Error details:', {
       name: error.name,
       message: error.message,
       sql: error.sql,
@@ -180,7 +181,7 @@ const updateSite = async (req, res) => {
       data: site
     });
   } catch (error) {
-    console.error('Update site error:', error);
+    logger.error('Update site error:', error);
     res.status(500).json({
       success: false,
       message: '현장 수정에 실패했습니다.'
@@ -226,7 +227,7 @@ const deleteSite = async (req, res) => {
       message: '현장이 삭제되었습니다.'
     });
   } catch (error) {
-    console.error('Delete site error:', error);
+    logger.error('Delete site error:', error);
     res.status(500).json({
       success: false,
       message: '현장 삭제에 실패했습니다.'
@@ -287,7 +288,7 @@ const getAllWorkLogs = async (req, res) => {
       data: workLogs
     });
   } catch (error) {
-    console.error('Get work logs error:', error);
+    logger.error('Get work logs error:', error);
     res.status(500).json({
       success: false,
       message: '작업일지 조회에 실패했습니다.'
@@ -317,7 +318,7 @@ const getAllWorkers = async (req, res) => {
       data: workers
     });
   } catch (error) {
-    console.error('Get workers error:', error);
+    logger.error('Get workers error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 목록 조회에 실패했습니다.'
@@ -372,7 +373,7 @@ const getDashboardStats = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get dashboard stats error:', error);
+    logger.error('Get dashboard stats error:', error);
     res.status(500).json({
       success: false,
       message: '대시보드 통계 조회에 실패했습니다.'
@@ -423,7 +424,7 @@ const getAllExpenses = async (req, res) => {
       data: expenses
     });
   } catch (error) {
-    console.error('Get all expenses error:', error);
+    logger.error('Get all expenses error:', error);
     res.status(500).json({
       success: false,
       message: '지출결의 목록 조회에 실패했습니다.'
@@ -494,7 +495,7 @@ const approveExpense = async (req, res) => {
       data: updatedExpense
     });
   } catch (error) {
-    console.error('Approve expense error:', error);
+    logger.error('Approve expense error:', error);
     res.status(500).json({
       success: false,
       message: '지출결의 승인에 실패했습니다.',
@@ -576,7 +577,7 @@ const rejectExpense = async (req, res) => {
       data: updatedExpense
     });
   } catch (error) {
-    console.error('Reject expense error:', error);
+    logger.error('Reject expense error:', error);
     res.status(500).json({
       success: false,
       message: '지출결의 거절에 실패했습니다.',
@@ -634,7 +635,7 @@ const getForemanWorkers = async (req, res) => {
           createdAt: worker.createdAt
         };
       } catch (error) {
-        console.error('RRN decryption error for worker:', worker.id, error);
+        logger.error('RRN decryption error for worker:', worker.id, error);
         // 복호화 실패 시 마스킹된 값만 반환
         return {
           id: worker.id,
@@ -653,7 +654,7 @@ const getForemanWorkers = async (req, res) => {
       data: workersWithDecryptedRRN
     });
   } catch (error) {
-    console.error('Get foreman workers error:', error);
+    logger.error('Get foreman workers error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 목록 조회에 실패했습니다.',
@@ -716,7 +717,7 @@ const updateForemanDailyRate = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Update foreman daily rate error:', error);
+    logger.error('Update foreman daily rate error:', error);
     res.status(500).json({
       success: false,
       message: '단가 업데이트에 실패했습니다.',
@@ -788,7 +789,7 @@ const markWorkLogsAsPaid = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Mark work logs as paid error:', error);
+    logger.error('Mark work logs as paid error:', error);
     res.status(500).json({
       success: false,
       message: '지급 처리에 실패했습니다.',
@@ -1007,7 +1008,7 @@ const getAggregationData = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get aggregation data error:', error);
+    logger.error('Get aggregation data error:', error);
     res.status(500).json({
       success: false,
       message: '집계 데이터 조회에 실패했습니다.',
@@ -1037,7 +1038,7 @@ const getForemen = async (req, res) => {
       data: foremen
     });
   } catch (error) {
-    console.error('Get foremen error:', error);
+    logger.error('Get foremen error:', error);
     res.status(500).json({
       success: false,
       message: '작업반장 목록 조회에 실패했습니다.'
@@ -1125,7 +1126,7 @@ const assignForemenToSite = async (req, res) => {
       data: updatedSite
     });
   } catch (error) {
-    console.error('Assign foremen to site error:', error);
+    logger.error('Assign foremen to site error:', error);
     res.status(500).json({
       success: false,
       message: '작업반장 할당에 실패했습니다.'

@@ -4,6 +4,7 @@ const User = require('../models/User');
 const path = require('path');
 const { uploadFile, deleteFile, STORAGE_BUCKETS } = require('../config/supabase');
 const { nanoid } = require('nanoid');
+const logger = require('../config/logger');
 
 // 첨부파일 업로드 (Supabase Storage 사용)
 exports.uploadAttachment = async (req, res) => {
@@ -84,7 +85,7 @@ exports.uploadAttachment = async (req, res) => {
       data: attachmentWithUser
     });
   } catch (error) {
-    console.error('첨부파일 업로드 오류:', error);
+    logger.error('첨부파일 업로드 오류:', error);
     res.status(500).json({ 
       success: false,
       message: '첨부파일 업로드에 실패했습니다.',
@@ -103,7 +104,7 @@ exports.getAttachmentsByTask = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'username', 'name', 'role']
+          attributes: ['id', 'name', 'email', 'role']
         }
       ],
       order: [['createdAt', 'DESC']]
@@ -111,7 +112,7 @@ exports.getAttachmentsByTask = async (req, res) => {
 
     res.json(attachments);
   } catch (error) {
-    console.error('첨부파일 조회 오류:', error);
+    logger.error('첨부파일 조회 오류:', error);
     res.status(500).json({ message: '첨부파일 조회에 실패했습니다.' });
   }
 };
@@ -156,7 +157,7 @@ exports.deleteAttachment = async (req, res) => {
       try {
         await deleteFile(STORAGE_BUCKETS.WORK_LOGS, attachment.storage_path);
       } catch (fileError) {
-        console.error('Storage 파일 삭제 오류:', fileError);
+        logger.error('Storage 파일 삭제 오류:', fileError);
         // 파일이 이미 없어도 DB 레코드는 삭제
       }
     }
@@ -167,7 +168,7 @@ exports.deleteAttachment = async (req, res) => {
       message: '첨부파일이 삭제되었습니다.' 
     });
   } catch (error) {
-    console.error('첨부파일 삭제 오류:', error);
+    logger.error('첨부파일 삭제 오류:', error);
     res.status(500).json({ 
       success: false,
       message: '첨부파일 삭제에 실패했습니다.',
@@ -211,7 +212,7 @@ exports.downloadAttachment = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('첨부파일 다운로드 오류:', error);
+    logger.error('첨부파일 다운로드 오류:', error);
     res.status(500).json({ 
       success: false,
       message: '첨부파일 다운로드에 실패했습니다.',

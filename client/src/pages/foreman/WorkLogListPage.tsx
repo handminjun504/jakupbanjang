@@ -68,7 +68,7 @@ const WorkLogListPage: React.FC = () => {
   const { selectedSiteId } = useSiteStore();
   const [activeTab, setActiveTab] = useState('work-logs');
   const [workDate, setWorkDate] = useState(new Date().toISOString().split('T')[0]);
-  const [workLogs, setWorkLogs] = useState<WorkLog[]>([]);
+  const [, setWorkLogs] = useState<WorkLog[]>([]);
   const [groupedWorkLogs, setGroupedWorkLogs] = useState<GroupedWorkLog[]>([]);
   const [selectedWorkLog, setSelectedWorkLog] = useState<GroupedWorkLog | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,6 +91,7 @@ const WorkLogListPage: React.FC = () => {
     if (selectedSiteId) {
       fetchWorkLogs();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSiteId, workDate]);
 
   const fetchWorkLogs = async () => {
@@ -1097,15 +1098,6 @@ const FullDescription = styled.div`
   border-radius: ${theme.borderRadius.small};
 `;
 
-const AttachmentInfo = styled.div`
-  font-size: 14px;
-  color: ${theme.colors.text.secondary};
-  padding: ${theme.spacing.md};
-  background-color: ${theme.colors.background.primary};
-  border-radius: ${theme.borderRadius.small};
-  text-align: center;
-`;
-
 /* 첨부파일 스타일 */
 const AttachmentsGrid = styled.div`
   display: grid;
@@ -1256,7 +1248,7 @@ const EditWorkerCardName = styled.div`
   font-weight: 700;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 15px;
   }
 `;
@@ -1272,7 +1264,7 @@ const EditInputRow = styled.div`
   display: flex;
   gap: ${theme.spacing.md};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     flex-direction: column;
     gap: ${theme.spacing.sm};
   }
@@ -1317,7 +1309,7 @@ const EditWorkerInput = styled(StyledInput)`
   font-weight: 600;
   padding: 12px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 14px;
     padding: 10px;
   }
@@ -1333,7 +1325,7 @@ const EditInputUnitText = styled.span`
   background-color: ${theme.colors.background.secondary};
   padding-left: 4px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     right: 10px;
     font-size: 12px;
   }
@@ -1354,7 +1346,7 @@ const EditAmountLabel = styled.span`
   font-weight: 700;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 13px;
   }
 `;
@@ -1364,7 +1356,7 @@ const EditAmountDisplay = styled.span`
   font-weight: 800;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 16px;
   }
 `;
@@ -1380,7 +1372,7 @@ const EditTotalAmountSection = styled.div`
   border: 2px solid ${theme.colors.accent};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     flex-direction: column;
     gap: ${theme.spacing.sm};
     text-align: center;
@@ -1398,7 +1390,7 @@ const EditTotalAmountValue = styled.span`
   font-weight: 800;
   color: ${theme.colors.text.primary};
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     font-size: 24px;
   }
 `;
@@ -1433,7 +1425,7 @@ const CancelEditButton = styled.button`
     cursor: not-allowed;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     padding: 12px 20px;
     font-size: 14px;
   }
@@ -1460,7 +1452,7 @@ const SaveEditButton = styled.button<{ disabled?: boolean }>`
     cursor: not-allowed;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: ${theme.breakpoints.mobile}) {
     padding: 12px 20px;
     font-size: 14px;
   }

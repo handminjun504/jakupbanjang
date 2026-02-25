@@ -114,11 +114,13 @@ export default SiteSelectionPage;
 // Styled Components
 const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%);
+  min-height: 100dvh;
+  background-color: ${theme.colors.background.secondary};
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: ${theme.spacing.md};
+  padding-top: ${theme.spacing.xl};
   
   @media (min-width: ${theme.breakpoints.tablet}) {
     padding: 2rem;
@@ -140,7 +142,7 @@ const Card = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 700;
   color: ${theme.colors.text.primary};
   margin-bottom: 0.5rem;
@@ -152,7 +154,7 @@ const Title = styled.h1`
 `;
 
 const Description = styled.p`
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: ${theme.colors.text.secondary};
   text-align: center;
   margin-bottom: ${theme.spacing.lg};
@@ -223,8 +225,8 @@ const SiteName = styled.h3`
 `;
 
 const StatusBadge = styled.span<{ status: string }>`
-  font-size: 0.625rem;
-  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
   border-radius: 12px;
   font-weight: 600;
   white-space: nowrap;
@@ -241,7 +243,7 @@ const StatusBadge = styled.span<{ status: string }>`
 `;
 
 const SiteAddress = styled.p`
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   color: ${theme.colors.text.secondary};
   margin: ${theme.spacing.sm} 0;
   line-height: 1.5;
@@ -265,17 +267,17 @@ const SiteDates = styled.div`
 `;
 
 const DateText = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: ${theme.colors.text.secondary};
 `;
 
 const SelectButton = styled.div`
   margin-top: ${theme.spacing.md};
-  padding: ${theme.spacing.sm};
+  padding: 12px ${theme.spacing.sm};
   text-align: center;
   color: ${theme.colors.primary};
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 1rem;
   border-top: 1px solid ${theme.colors.border};
   
   @media (min-width: ${theme.breakpoints.tablet}) {

@@ -20,7 +20,7 @@ interface Site {
 
 const Header: React.FC<HeaderProps> = ({ onLogout, showBackButton = true, showSiteSelector = false }) => {
   const navigate = useNavigate();
-  const { selectedSiteId, selectedSite, setSelectedSite } = useSiteStore();
+  const { selectedSiteId, setSelectedSite } = useSiteStore();
   const [sites, setSites] = useState<Site[]>([]);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -144,13 +144,13 @@ const LeftSection = styled.div`
 
 const BackButton = styled.button`
   background: none;
-  padding: 8px;
+  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: ${theme.colors.text.primary};
-  min-width: 40px;
-  min-height: 40px;
+  min-width: 44px;
+  min-height: 44px;
   
   &:hover {
     opacity: 0.7;
@@ -194,16 +194,17 @@ const Logo = styled.div`
 `;
 
 const SiteSelector = styled.select`
-  padding: 6px 10px;
+  padding: 8px 12px;
   border: 2px solid ${theme.colors.border};
   border-radius: ${theme.borderRadius.medium};
   background-color: ${theme.colors.background.secondary};
   color: ${theme.colors.text.primary};
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  max-width: 120px;
-  min-width: 80px;
+  max-width: 150px;
+  min-width: 90px;
+  min-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

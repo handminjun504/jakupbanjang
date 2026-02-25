@@ -53,17 +53,18 @@ const TabsContainer = styled.div`
 const TabItem = styled.button<{ $active: boolean }>`
   flex: 1 0 auto;
   min-width: fit-content;
-  padding: 12px 16px;
+  padding: 14px 18px;
   background: none;
   border: none;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: ${props => props.$active ? '700' : '500'};
   color: ${props => props.$active ? theme.colors.text.primary : theme.colors.text.secondary};
   position: relative;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
-  
+  min-height: ${theme.touchTarget.minHeight};
+
   ${props => props.$active && `
     &::after {
       content: '';
@@ -75,15 +76,15 @@ const TabItem = styled.button<{ $active: boolean }>`
       background-color: ${theme.colors.accent};
     }
   `}
-  
+
   &:hover {
     color: ${theme.colors.text.primary};
     background-color: ${theme.colors.background.secondary};
   }
-  
+
   @media (min-width: ${theme.breakpoints.tablet}) {
     padding: 16px 24px;
-    font-size: 15px;
+    font-size: 16px;
     flex: 1;
   }
 `;

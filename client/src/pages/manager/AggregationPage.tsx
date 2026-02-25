@@ -9,7 +9,6 @@ import {
   AggregationData,
   Site
 } from '../../api/admin';
-import { getWorkersBySite } from '../../api/foreman';
 import { StyledSelect } from '../../components/common/StyledInput';
 
 interface GroupedWorkLog {
@@ -28,7 +27,6 @@ const AggregationPage: React.FC = () => {
   const [aggregationData, setAggregationData] = useState<AggregationData | null>(null);
   const [sites, setSites] = useState<Site[]>([]);
   const [foremen, setForemen] = useState<any[]>([]);
-  const [workers, setWorkers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -59,6 +57,7 @@ const AggregationPage: React.FC = () => {
 
   useEffect(() => {
     fetchAggregationData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchInitialData = async () => {

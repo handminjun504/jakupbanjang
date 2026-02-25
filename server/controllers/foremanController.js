@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const path = require('path');
 const { validateRRN } = require('../utils/rrnValidator');
 const { encryptRRN, decryptRRN, maskRRN } = require('../utils/encryption');
+const logger = require('../config/logger');
 
 /**
  * 현장 목록 조회 (작업반장용 - 할당된 현장만)
@@ -50,7 +51,7 @@ exports.getSites = async (req, res) => {
       data: sites
     });
   } catch (error) {
-    console.error('Get sites error:', error);
+    logger.error('Get sites error:', error);
     res.status(500).json({
       success: false,
       message: '현장 목록 조회에 실패했습니다.'
@@ -67,11 +68,11 @@ exports.createWorker = async (req, res) => {
     const foremanId = req.user.id;
     const companyId = req.user.companyId;
 
-    console.log('📝 근무자 추가 요청:', { name, rrn, phoneNumber, dailyRate, foremanId });
+    logger.info('📝 근무자 추가 요청:', { name, rrn, phoneNumber, dailyRate, foremanId });
 
     // 필수 필드 검증
     if (!name || !rrn) {
-      console.log('❌ 필수 필드 누락:', { name: !!name, rrn: !!rrn });
+      logger.info('❌ 필수 필드 누락:', { name: !!name, rrn: !!rrn });
       return res.status(400).json({
         success: false,
         message: '이름과 주민등록번호는 필수 항목입니다.'
@@ -80,11 +81,11 @@ exports.createWorker = async (req, res) => {
 
     // 주민등록번호 형식 검증 (하이픈 제거)
     const cleanRRN = rrn.replace(/-/g, '');
-    console.log('🔍 주민번호 검증:', { original: rrn, cleaned: cleanRRN, length: cleanRRN.length });
+    logger.info('🔍 주민번호 검증:', { original: rrn, cleaned: cleanRRN, length: cleanRRN.length });
     
     // 주민등록번호 유효성 검사
     if (!validateRRN(cleanRRN)) {
-      console.log('❌ 주민번호 유효성 검사 실패:', cleanRRN);
+      logger.info('❌ 주민번호 유효성 검사 실패:', cleanRRN);
       return res.status(400).json({
         success: false,
         message: '유효하지 않은 주민등록번호입니다. (13자리 숫자로 입력해주세요)'
@@ -146,7 +147,7 @@ exports.createWorker = async (req, res) => {
       data: workerResponse
     });
   } catch (error) {
-    console.error('Create worker error:', error);
+    logger.error('Create worker error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 추가에 실패했습니다.',
@@ -183,8 +184,8 @@ exports.getWorkersBySite = async (req, res) => {
           createdAt: worker.createdAt
         };
       } catch (error) {
-        console.error('❌ RRN decryption error for worker:', worker.id, error);
-        console.error('❌ Encrypted RRN value:', worker.rrn);
+        logger.error('❌ RRN decryption error for worker:', worker.id, error);
+        logger.error('❌ Encrypted RRN value:', worker.rrn);
         // 복호화 실패 시 고정 마스킹 값 반환
         return {
           id: worker.id,
@@ -204,7 +205,7 @@ exports.getWorkersBySite = async (req, res) => {
       data: workersWithDecryptedRRN
     });
   } catch (error) {
-    console.error('Get workers error:', error);
+    logger.error('Get workers error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 목록 조회에 실패했습니다.'
@@ -263,7 +264,7 @@ exports.updateWorker = async (req, res) => {
       data: updatedWorkerResponse
     });
   } catch (error) {
-    console.error('Update worker error:', error);
+    logger.error('Update worker error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 정보 수정에 실패했습니다.'
@@ -332,7 +333,7 @@ exports.resignWorker = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Resign worker error:', error);
+    logger.error('Resign worker error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 퇴사 처리에 실패했습니다.',
@@ -388,7 +389,7 @@ exports.getTasksBySite = async (req, res) => {
       data: tasks
     });
   } catch (error) {
-    console.error('Get tasks error:', error);
+    logger.error('Get tasks error:', error);
     res.status(500).json({
       success: false,
       message: '작업 목록 조회에 실패했습니다.'
@@ -453,7 +454,7 @@ exports.createWorkLog = async (req, res) => {
           const fileName = `worklog_${workLog.id}_${Date.now()}_${randomString}${fileExt}`;
           const fullPath = `${folderPath}/${fileName}`;
           
-          console.log('📤 Uploading file:', {
+          logger.info('📤 Uploading file:', {
             original: file.originalname,
             path: fullPath,
             size: file.size,
@@ -486,14 +487,14 @@ exports.createWorkLog = async (req, res) => {
               mime_type: file.mimetype
             });
             
-            console.log('✅ File uploaded successfully:', publicUrl);
+            logger.info('✅ File uploaded successfully:', publicUrl);
           } else {
-            console.error('❌ File upload failed:', error);
+            logger.error('❌ File upload failed:', error);
             throw new Error(`파일 업로드 실패: ${error.message}`);
           }
         }
       } catch (uploadError) {
-        console.error('❌ Upload error:', uploadError);
+        logger.error('❌ Upload error:', uploadError);
         throw uploadError; // 에러를 상위로 전파하여 사용자에게 알림
       }
     }
@@ -530,7 +531,7 @@ exports.createWorkLog = async (req, res) => {
       data: workLogWithDetails
     });
   } catch (error) {
-    console.error('Create work log error:', error);
+    logger.error('Create work log error:', error);
     res.status(500).json({
       success: false,
       message: '작업일지 등록에 실패했습니다.',
@@ -595,7 +596,7 @@ exports.getWorkLogs = async (req, res) => {
       data: workLogs
     });
   } catch (error) {
-    console.error('Get work logs error:', error);
+    logger.error('Get work logs error:', error);
     res.status(500).json({
       success: false,
       message: '작업일지 조회에 실패했습니다.'
@@ -628,8 +629,8 @@ exports.getWorkersList = async (req, res) => {
           dailyRate: worker.dailyRate
         };
       } catch (error) {
-        console.error('❌ RRN decryption error for worker:', worker.id, error);
-        console.error('❌ Encrypted RRN value:', worker.rrn);
+        logger.error('❌ RRN decryption error for worker:', worker.id, error);
+        logger.error('❌ Encrypted RRN value:', worker.rrn);
         // 복호화 실패 시 고정 마스킹 값 반환
         return {
           id: worker.id,
@@ -646,7 +647,7 @@ exports.getWorkersList = async (req, res) => {
       data: workersWithDecryptedRRN
     });
   } catch (error) {
-    console.error('Get workers list error:', error);
+    logger.error('Get workers list error:', error);
     res.status(500).json({
       success: false,
       message: '근무자 목록 조회에 실패했습니다.'
@@ -717,7 +718,7 @@ exports.updateWorkLog = async (req, res) => {
       data: updatedWorkLog
     });
   } catch (error) {
-    console.error('Update work log error:', error);
+    logger.error('Update work log error:', error);
     res.status(500).json({
       success: false,
       message: '작업일지 수정에 실패했습니다.',
@@ -762,7 +763,7 @@ exports.deleteWorkLog = async (req, res) => {
       message: '작업일지가 삭제되었습니다.'
     });
   } catch (error) {
-    console.error('Delete work log error:', error);
+    logger.error('Delete work log error:', error);
     res.status(500).json({
       success: false,
       message: '작업일지 삭제에 실패했습니다.',
@@ -781,7 +782,7 @@ exports.createExpense = async (req, res) => {
     const companyId = req.user.companyId;
     const file = req.file;  // multer에서 파일 받기
 
-    console.log('📝 Creating expense with data:', {
+    logger.info('📝 Creating expense with data:', {
       title, content, amount, expenseDate, siteId, creatorId, companyId,
       hasFile: !!file
     });
@@ -805,14 +806,14 @@ exports.createExpense = async (req, res) => {
     // 현장 존재 여부 확인
     const site = await Site.findOne({ where: { id: siteId, companyId } });
     if (!site) {
-      console.error('❌ Site not found:', { siteId, companyId });
+      logger.error('❌ Site not found:', { siteId, companyId });
       return res.status(404).json({
         success: false,
         message: '현장을 찾을 수 없습니다.'
       });
     }
 
-    console.log('✅ Site found:', site.name);
+    logger.info('✅ Site found:', site.name);
 
     // 파일이 있으면 Supabase Storage에 업로드
     let attachmentUrl = null;
@@ -829,7 +830,7 @@ exports.createExpense = async (req, res) => {
         const fileName = `expense_${Date.now()}_${randomString}${fileExt}`;
         const fullPath = `${folderPath}/${fileName}`;
         
-        console.log('📤 Uploading expense file:', {
+        logger.info('📤 Uploading expense file:', {
           original: file.originalname,
           path: fullPath,
           size: file.size,
@@ -845,7 +846,7 @@ exports.createExpense = async (req, res) => {
           });
 
         if (error) {
-          console.error('❌ Expense file upload failed:', error);
+          logger.error('❌ Expense file upload failed:', error);
           throw new Error(`파일 업로드 실패: ${error.message}`);
         } else {
           const { data: { publicUrl } } = supabase.storage
@@ -853,16 +854,16 @@ exports.createExpense = async (req, res) => {
             .getPublicUrl(fullPath);
           
           attachmentUrl = publicUrl;
-          console.log('✅ Expense file uploaded successfully:', attachmentUrl);
+          logger.info('✅ Expense file uploaded successfully:', attachmentUrl);
         }
       } catch (uploadError) {
-        console.error('❌ Expense upload error:', uploadError);
+        logger.error('❌ Expense upload error:', uploadError);
         throw uploadError; // 에러를 상위로 전파
       }
     }
 
     // 지출결의 생성
-    console.log('📝 Creating expense in DB...');
+    logger.info('📝 Creating expense in DB...');
     const expense = await Expense.create({
       title,
       content,
@@ -875,7 +876,7 @@ exports.createExpense = async (req, res) => {
       attachmentUrl  // 첨부파일 URL 추가
     });
 
-    console.log('✅ Expense created:', expense.id);
+    logger.info('✅ Expense created:', expense.id);
 
     // 생성된 지출결의 정보와 관련 데이터 조회
     const expenseWithDetails = await Expense.findByPk(expense.id, {
@@ -899,7 +900,7 @@ exports.createExpense = async (req, res) => {
       data: expenseWithDetails
     });
   } catch (error) {
-    console.error('Create expense error:', error);
+    logger.error('Create expense error:', error);
     res.status(500).json({
       success: false,
       message: '지출결의 등록에 실패했습니다.',
@@ -952,7 +953,7 @@ exports.getExpenses = async (req, res) => {
       data: expenses
     });
   } catch (error) {
-    console.error('Get expenses error:', error);
+    logger.error('Get expenses error:', error);
     res.status(500).json({
       success: false,
       message: '지출결의 목록 조회에 실패했습니다.'

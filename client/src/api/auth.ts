@@ -3,20 +3,6 @@ import axiosInstance from './axios';
 // 공통 axios 인스턴스 사용 (환경 변수 포함)
 const api = axiosInstance;
 
-// 회원가입 API (레거시)
-export const signup = async (email: string, password: string, role: string) => {
-  try {
-    const response = await api.post('/auth/signup', {
-      email,
-      password,
-      role
-    });
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data || { message: '회원가입 중 오류가 발생했습니다.' };
-  }
-};
-
 // 작업반장 회원가입 (초대 코드 사용, 휴대폰 번호로 가입)
 export const signupForeman = async (name: string, phone: string, password: string, inviteCode: string) => {
   try {

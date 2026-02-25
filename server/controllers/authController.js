@@ -90,11 +90,14 @@ exports.signupForeman = async (req, res) => {
  * 관리자 회원가입 (새 기업 생성)
  */
 exports.signupManager = async (req, res) => {
+  const sequelize = require('../config/database');
+  const transaction = await sequelize.transaction();
+
   try {
     const { email, password, companyName } = req.body;
 
-    // 입력 검증
     if (!email || !password || !companyName) {
+      await transaction.rollback();
       logger.warn('관리자 회원가입 실패: 필수 항목 누락');
       return validationErrorResponse(res, [
         { field: 'email', message: '이메일은 필수입니다.' },
@@ -103,32 +106,45 @@ exports.signupManager = async (req, res) => {
       ].filter(err => !req.body[err.field]));
     }
 
-    // 이메일 중복 체크
-    const existingUser = await User.findOne({ where: { email } });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      await transaction.rollback();
+      return validationErrorResponse(res, [
+        { field: 'email', message: '유효한 이메일 형식이 아닙니다.' }
+      ]);
+    }
+
+    if (password.length < 6) {
+      await transaction.rollback();
+      return validationErrorResponse(res, [
+        { field: 'password', message: '비밀번호는 최소 6자 이상이어야 합니다.' }
+      ]);
+    }
+
+    const existingUser = await User.findOne({ where: { email }, transaction });
     if (existingUser) {
+      await transaction.rollback();
       logger.warn(`관리자 회원가입 실패: 중복 이메일 - ${email}`);
       return errorResponse(res, '이미 사용 중인 이메일입니다.', 400);
     }
 
-    // 새 기업 생성 (inviteCode는 자동 생성됨)
     const newCompany = await Company.create({
-      name: companyName
-    });
+      name: companyName.trim()
+    }, { transaction });
 
-    // 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 관리자 사용자 생성
     const newUser = await User.create({
       email,
       password: hashedPassword,
       role: 'manager',
       companyId: newCompany.id
-    });
+    }, { transaction });
+
+    await transaction.commit();
 
     logger.info(`관리자 회원가입 성공: userId=${newUser.id}, companyId=${newCompany.id}, inviteCode=${newCompany.inviteCode}`);
 
-    // 비밀번호 제외하고 사용자 정보 반환
     const responseData = {
       user: {
         id: newUser.id,
@@ -147,6 +163,7 @@ exports.signupManager = async (req, res) => {
     return createdResponse(res, responseData, `${companyName} 기업이 생성되었습니다.`);
 
   } catch (error) {
+    await transaction.rollback();
     logger.error(`관리자 회원가입 오류: ${error.message}`);
     logger.error(error.stack);
     return errorResponse(res, '회원가입 중 오류가 발생했습니다.', 500);

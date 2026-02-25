@@ -1,6 +1,7 @@
 const Comment = require('../models/Comment');
 const Task = require('../models/Task');
 const User = require('../models/User');
+const logger = require('../config/logger');
 
 // 댓글 생성
 exports.createComment = async (req, res) => {
@@ -26,14 +27,14 @@ exports.createComment = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'username', 'name', 'role']
+          attributes: ['id', 'name', 'email', 'role']
         }
       ]
     });
 
     res.status(201).json(commentWithUser);
   } catch (error) {
-    console.error('댓글 생성 오류:', error);
+    logger.error('댓글 생성 오류:', error);
     res.status(500).json({ message: '댓글 생성에 실패했습니다.' });
   }
 };
@@ -48,7 +49,7 @@ exports.getCommentsByTask = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'username', 'name', 'role']
+          attributes: ['id', 'name', 'email', 'role']
         }
       ],
       order: [['createdAt', 'ASC']]
@@ -56,7 +57,7 @@ exports.getCommentsByTask = async (req, res) => {
 
     res.json(comments);
   } catch (error) {
-    console.error('댓글 조회 오류:', error);
+    logger.error('댓글 조회 오류:', error);
     res.status(500).json({ message: '댓글 조회에 실패했습니다.' });
   }
 };
@@ -87,7 +88,7 @@ exports.deleteComment = async (req, res) => {
     await comment.destroy();
     res.json({ message: '댓글이 삭제되었습니다.' });
   } catch (error) {
-    console.error('댓글 삭제 오류:', error);
+    logger.error('댓글 삭제 오류:', error);
     res.status(500).json({ message: '댓글 삭제에 실패했습니다.' });
   }
 };
@@ -122,14 +123,14 @@ exports.updateComment = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['id', 'username', 'name', 'role']
+          attributes: ['id', 'name', 'email', 'role']
         }
       ]
     });
 
     res.json(updatedComment);
   } catch (error) {
-    console.error('댓글 수정 오류:', error);
+    logger.error('댓글 수정 오류:', error);
     res.status(500).json({ message: '댓글 수정에 실패했습니다.' });
   }
 };

@@ -1,11 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-// Supabase PostgreSQL 설정
-// Note: dotenv is already loaded in index.js
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  // 테스트 환경에서는 기본 테스트 DB URL 사용
   if (process.env.NODE_ENV === 'test') {
     console.warn('⚠️  DATABASE_URL not set, using test database');
     process.env.DATABASE_URL = 'postgresql://postgres.diqflvxzsjvndlbwzldi:9hDhHMfxFe2Z8rFH@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require';
@@ -24,30 +21,59 @@ const sequelize = new Sequelize(finalDatabaseUrl, {
     ssl: {
       require: true,
       rejectUnauthorized: false
-    }
+    },
+    connectTimeout: 60000,
+    statement_timeout: 30000,
+    idle_in_transaction_session_timeout: 30000,
   },
   logging: false,
   pool: {
-    max: 5,
+    max: 3,
     min: 0,
-    acquire: 30000,
-    idle: 10000
-  }
+    acquire: 60000,
+    idle: 10000,
+    evict: 1000,
+  },
+  retry: {
+    max: 3,
+    match: [
+      /SequelizeConnectionError/,
+      /SequelizeConnectionRefusedError/,
+      /SequelizeHostNotFoundError/,
+      /SequelizeHostNotReachableError/,
+      /SequelizeInvalidConnectionError/,
+      /SequelizeConnectionTimedOutError/,
+      /SequelizeConnectionAcquireTimeoutError/,
+      /Operation timeout/,
+      /ETIMEDOUT/,
+      /ECONNRESET/,
+      /ECONNREFUSED/,
+    ],
+  },
 });
 
-// 데이터베이스 연결 테스트
-sequelize.authenticate()
-  .then(() => {
-    console.log('✅ Database connection has been established successfully.');
-    console.log('📦 Using Supabase PostgreSQL');
-  })
-  .catch(err => {
-    console.error('❌ Unable to connect to the database:', err);
-    // 테스트 환경에서는 exit하지 않음
-    if (process.env.NODE_ENV !== 'test') {
-      process.exit(1);
+const connectWithRetry = async (retries = 5, delay = 3000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await sequelize.authenticate();
+      console.log('✅ Database connection established successfully.');
+      console.log('📦 Using Supabase PostgreSQL');
+      return;
+    } catch (err) {
+      console.error(`❌ DB connection attempt ${i + 1}/${retries} failed:`, err.message);
+      if (i < retries - 1) {
+        console.log(`⏳ Retrying in ${delay / 1000}s...`);
+        await new Promise(r => setTimeout(r, delay));
+        delay *= 1.5;
+      }
     }
-  });
+  }
+  console.error('❌ All DB connection attempts failed. Server will start but DB may be unavailable.');
+};
+
+if (process.env.NODE_ENV !== 'test') {
+  connectWithRetry();
+}
 
 module.exports = sequelize;
 

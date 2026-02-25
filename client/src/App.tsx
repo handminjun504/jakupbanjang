@@ -34,7 +34,6 @@ const ExpenseManagementPage = lazy(() => import('./pages/manager/ExpenseManageme
 const AggregationPage = lazy(() => import('./pages/manager/AggregationPage'));
 
 // 작업반장 페이지 (Lazy Loading)
-const WorkerDetailPage = lazy(() => import('./pages/WorkerDetailPage'));
 const ExpenseEntryPage = lazy(() => import('./pages/ExpenseEntryPage'));
 const SiteSelectionPage = lazy(() => import('./pages/foreman/SiteSelectionPage'));
 const AddWorkerPage = lazy(() => import('./pages/foreman/AddWorkerPage'));
@@ -136,14 +135,6 @@ function App() {
             }
           />
           <Route
-            path="/foreman/worker/:id"
-            element={
-              <PrivateRoute requiredRole="foreman">
-                <WorkerDetailPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
             path="/foreman/expense"
             element={
               <PrivateRoute requiredRole="foreman">
@@ -151,15 +142,6 @@ function App() {
               </PrivateRoute>
             }
           />
-
-          {/* 레거시 라우트 리다이렉트 */}
-          <Route path="/tasks" element={<Navigate to="/foreman/worklogs" replace />} />
-          <Route path="/foreman/tasks" element={<Navigate to="/foreman/worklogs" replace />} />
-          <Route path="/worker/:id" element={<Navigate to="/foreman/worker/:id" replace />} />
-          <Route path="/task-entry/:workerId" element={<Navigate to="/foreman/add-worklog" replace />} />
-          <Route path="/foreman/task-entry/:workerId" element={<Navigate to="/foreman/add-worklog" replace />} />
-          <Route path="/expense" element={<Navigate to="/foreman/expense" replace />} />
-          <Route path="/dashboard" element={<Navigate to="/foreman/worklogs" replace />} />
 
           {/* 404 - 홈으로 리다이렉트 */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -62,3 +62,11 @@ temp/
 tmp/
 
 
+
+# Playwright
+test-results/
+playwright-report/
+
+# Capacitor native projects
+client/android/
+client/ios/

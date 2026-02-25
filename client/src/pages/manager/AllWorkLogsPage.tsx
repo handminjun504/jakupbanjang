@@ -62,6 +62,7 @@ const AllWorkLogsPage: React.FC = () => {
     if (filterSiteId || filterStartDate || filterEndDate) {
       fetchWorkLogs();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterSiteId, filterStartDate, filterEndDate]);
 
   const fetchWorkLogs = async () => {
@@ -562,15 +563,6 @@ const TableCell = styled.td`
   font-size: 14px;
   color: ${theme.colors.text.primary};
   border-bottom: 1px solid ${theme.colors.border};
-`;
-
-const StatusBadge = styled.span`
-  padding: 4px 12px;
-  border-radius: ${theme.borderRadius.small};
-  font-size: 12px;
-  font-weight: 600;
-  background-color: ${theme.colors.background.secondary};
-  color: ${theme.colors.text.primary};
 `;
 
 const LoadingMessage = styled.div`

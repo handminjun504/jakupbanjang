@@ -41,7 +41,7 @@ interface Expense {
 
 const ExpenseEntryPage: React.FC = () => {
   const navigate = useNavigate();
-  const { selectedSiteId, selectedSite } = useSiteStore();
+  const { selectedSiteId } = useSiteStore();
   const [activeTab, setActiveTab] = useState('expense');
   const [expenseSubTab, setExpenseSubTab] = useState<'register' | 'list'>('register');
   const [title, setTitle] = useState('');

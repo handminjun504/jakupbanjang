@@ -82,43 +82,41 @@ app.get('/', (req, res) => {
  * 헬스체크 엔드포인트
  * Docker, PM2, 로드 밸런서 등에서 서버 상태 확인용
  */
+app.head('/health', (req, res) => {
+  res.status(200).end();
+});
+
 app.get('/health', async (req, res) => {
+  const uptime = process.uptime();
+  const uptimeFormatted = `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`;
+
+  let dbStatus = 'unknown';
   try {
-    // 데이터베이스 연결 확인
-    await sequelize.authenticate();
-    
-    // 서버 가동 시간 계산
-    const uptime = process.uptime();
-    const uptimeFormatted = `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`;
-    
-    // 메모리 사용량
-    const memoryUsage = process.memoryUsage();
-    const memoryUsageMB = {
-      rss: Math.round(memoryUsage.rss / 1024 / 1024),
-      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024),
-      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
-      external: Math.round(memoryUsage.external / 1024 / 1024)
-    };
-    
-    res.status(200).json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime: uptimeFormatted,
-      uptimeSeconds: Math.floor(uptime),
-      environment: process.env.NODE_ENV || 'development',
-      database: 'connected',
-      memory: memoryUsageMB,
-      version: require('./package.json').version || '1.0.0'
-    });
-  } catch (error) {
-    logger.error('Health check failed:', error);
-    res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: 'Database connection failed',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    await Promise.race([
+      sequelize.authenticate(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DB check timeout')), 5000))
+    ]);
+    dbStatus = 'connected';
+  } catch (err) {
+    dbStatus = 'disconnected';
+    logger.warn('Health check DB probe failed:', err.message);
   }
+
+  const memoryUsage = process.memoryUsage();
+  const statusCode = dbStatus === 'connected' ? 200 : 503;
+
+  res.status(statusCode).json({
+    status: dbStatus === 'connected' ? 'healthy' : 'degraded',
+    timestamp: new Date().toISOString(),
+    uptime: uptimeFormatted,
+    uptimeSeconds: Math.floor(uptime),
+    environment: process.env.NODE_ENV || 'development',
+    database: dbStatus,
+    memory: {
+      rss: Math.round(memoryUsage.rss / 1024 / 1024),
+      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+    },
+  });
 });
 
 /**

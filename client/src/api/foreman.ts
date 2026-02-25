@@ -92,16 +92,6 @@ export const getWorkersBySite = async (): Promise<Worker[]> => {
   }
 };
 
-// 특정 근무자 조회
-export const getWorkerById = async (workerId: number): Promise<Worker> => {
-  try {
-    const response = await apiClient.get<{ data: Worker }>(`/foreman/workers/${workerId}`);
-    return response.data.data || (response.data as unknown as Worker);
-  } catch (error) {
-    return handleApiError(error, '근무자 정보 조회에 실패했습니다.');
-  }
-};
-
 // 근무자 정보 수정
 export const updateWorker = async (workerId: number, workerData: {
   name?: string;
@@ -118,39 +108,12 @@ export const updateWorker = async (workerId: number, workerData: {
   }
 };
 
-/**
- * 근무자 퇴사 처리 (권장)
- * 실제 삭제가 아닌 status를 'resigned'로 변경
- * 기존 작업일지는 그대로 유지
- */
-export const resignWorker = async (workerId: number): Promise<Worker> => {
-  try {
-    const response = await apiClient.put<{ data: Worker }>(`/foreman/workers/${workerId}/resign`);
-    return response.data.data || (response.data as unknown as Worker);
-  } catch (error) {
-    return handleApiError(error, '근무자 퇴사 처리에 실패했습니다.');
-  }
-};
-
-/**
- * 근무자 삭제 (레거시)
- * @deprecated resignWorker 사용을 권장합니다
- */
+// 근무자 삭제
 export const deleteWorker = async (workerId: number): Promise<void> => {
   try {
     await apiClient.delete(`/foreman/workers/${workerId}`);
   } catch (error) {
     return handleApiError(error, '근무자 삭제에 실패했습니다.');
-  }
-};
-
-// 현장별 작업 목록 조회
-export const getTasksBySite = async (siteId: number) => {
-  try {
-    const response = await apiClient.get(`/foreman/tasks?siteId=${siteId}`);
-    return response.data.data || response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '작업 목록 조회에 실패했습니다.');
   }
 };
 
@@ -329,40 +292,4 @@ export const getExpenses = async (siteId?: number, status?: string) => {
   }
 };
 
-// 파일 업로드 (작업일지 첨부파일)
-export const uploadAttachment = async (taskId: number, file: File) => {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await apiClient.post(`/tasks/${taskId}/attachments`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    return response.data.data || response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '파일 업로드에 실패했습니다.');
-  }
-};
-
-// 첨부파일 목록 조회
-export const getAttachments = async (taskId: number) => {
-  try {
-    const response = await apiClient.get(`/tasks/${taskId}/attachments`);
-    return response.data.data || response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '첨부파일 목록 조회에 실패했습니다.');
-  }
-};
-
-// 첨부파일 삭제
-export const deleteAttachment = async (taskId: number, attachmentId: number) => {
-  try {
-    const response = await apiClient.delete(`/tasks/${taskId}/attachments/${attachmentId}`);
-    return response.data.data || response.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || '첨부파일 삭제에 실패했습니다.');
-  }
-};
 

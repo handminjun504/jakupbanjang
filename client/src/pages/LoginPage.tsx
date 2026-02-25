@@ -60,7 +60,7 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const result = await login(identifier, password, userType!);
+      await login(identifier, password, userType!);
       
       // 역할에 따라 다른 페이지로 리다이렉트
       if (userType === 'manager') {
@@ -226,7 +226,7 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: ${theme.colors.text.primary};
 `;
@@ -288,7 +288,7 @@ const ChoiceButton = styled.button`
 `;
 
 const ChoiceDescription = styled.span`
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   opacity: 0.8;
 `;
@@ -297,7 +297,7 @@ const BackButton = styled.button`
   background: none;
   border: none;
   color: ${theme.colors.text.secondary};
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   padding: ${theme.spacing.sm} 0;
   text-align: left;
@@ -312,7 +312,7 @@ const BackButton = styled.button`
 const LinkText = styled.p`
   text-align: center;
   margin-top: ${theme.spacing.lg};
-  font-size: 14px;
+  font-size: 15px;
   color: ${theme.colors.text.secondary};
 `;
 
