@@ -1,11 +1,11 @@
 const { Sequelize } = require('sequelize');
 
-const databaseUrl = process.env.DATABASE_URL;
+let databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   if (process.env.NODE_ENV === 'test') {
     console.warn('⚠️  DATABASE_URL not set, using test database');
-    process.env.DATABASE_URL = 'postgresql://postgres.diqflvxzsjvndlbwzldi:9hDhHMfxFe2Z8rFH@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require';
+    databaseUrl = 'postgresql://postgres.diqflvxzsjvndlbwzldi:9hDhHMfxFe2Z8rFH@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require';
   } else {
     console.error('❌ DATABASE_URL environment variable is not set!');
     console.error('Please set DATABASE_URL in your .env file');
@@ -13,16 +13,36 @@ if (!databaseUrl) {
   }
 }
 
-const finalDatabaseUrl = process.env.DATABASE_URL || databaseUrl;
+// Supabase 직접 연결(5432) → pooler(6543) 자동 변환
+// 클라우드 환경에서 직접 연결은 ETIMEDOUT 발생 가능
+if (databaseUrl.includes('supabase.com') || databaseUrl.includes('supabase.co')) {
+  const original = databaseUrl;
 
-const sequelize = new Sequelize(finalDatabaseUrl, {
+  // 포트 5432를 6543(pooler)으로 변환
+  databaseUrl = databaseUrl.replace(/:5432\//, ':6543/');
+
+  // 직접 연결 호스트를 pooler 호스트로 변환
+  // db.xxx.supabase.co → aws-0-ap-northeast-2.pooler.supabase.com
+  databaseUrl = databaseUrl.replace(
+    /db\.([a-z0-9]+)\.supabase\.co/,
+    'aws-0-ap-northeast-2.pooler.supabase.com'
+  );
+
+  if (original !== databaseUrl) {
+    console.log('🔄 DATABASE_URL auto-converted to use Supabase pooler (port 6543)');
+  }
+}
+
+console.log('🔗 DB host:', databaseUrl.replace(/\/\/[^@]+@/, '//***@'));
+
+const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
       require: true,
       rejectUnauthorized: false
     },
-    connectTimeout: 60000,
+    connectTimeout: 15000,
     statement_timeout: 30000,
     idle_in_transaction_session_timeout: 30000,
   },
@@ -30,7 +50,7 @@ const sequelize = new Sequelize(finalDatabaseUrl, {
   pool: {
     max: 3,
     min: 0,
-    acquire: 60000,
+    acquire: 30000,
     idle: 10000,
     evict: 1000,
   },
@@ -70,7 +90,7 @@ const connectWithRetry = async (retries = 3, delay = 2000) => {
 };
 
 if (process.env.NODE_ENV !== 'test') {
-  connectWithRetry();
+  connectWithRetry().catch(() => {});
 }
 
 module.exports = sequelize;

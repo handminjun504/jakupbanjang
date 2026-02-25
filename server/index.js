@@ -2,6 +2,26 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+
+// DB 연결 실패로 인한 프로세스 크래시 방지
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ Unhandled Rejection:', reason?.message || reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Uncaught Exception:', err.message);
+  // ETIMEDOUT 등 DB 연결 에러는 무시하고 서버 유지
+  if (err.message?.includes('ETIMEDOUT') || 
+      err.message?.includes('ECONNRESET') ||
+      err.message?.includes('ECONNREFUSED') ||
+      err.name?.includes('SequelizeConnection')) {
+    console.error('↳ Non-fatal DB connection error, server continues...');
+    return;
+  }
+  // 기타 심각한 에러는 프로세스 종료
+  console.error('↳ Fatal error, exiting...');
+  process.exit(1);
+});
+
 const sequelize = require('./config/database');
 const setupAssociations = require('./config/associations');
 const logger = require('./config/logger');
